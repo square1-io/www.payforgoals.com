@@ -1,9 +1,7 @@
 @php
-    $brand = $cfg['brand'];
-    $price = $cfg['pricing'];
+    // $brand, $price, $tempo and $links are supplied by the landing View Composer
+    // (App\Providers\AppServiceProvider), sourced from config/payforgoals.php.
     $stripe = $price['stripe'];
-    $tempo = $cfg['tempo'];
-    $links = $cfg['links'];
     $base = rtrim(config('app.url'), '/');
     $tempoExplorerAddress = rtrim($links['tempo_explorer'], '/').'/address/'.$tempo['recipient'];
     // The famous scorelines that flicker across the hero board.
@@ -655,6 +653,24 @@ Payment-Receipt: id="rcpt_...", method="stripe",
                         settles a single ${{ $stripe['classics'] }} {{ $stripe['currency'] }} PaymentIntent and issues a 3-credit
                         <code class="font-mono font-600 text-turf">Payment-Session</code> - the same metered session as Tempo, paid by card instead of on-chain.
                     </p>
+                    <div class="mt-5 grid gap-5 lg:grid-cols-2">
+                        <pre class="codeblock min-w-0 overflow-x-auto rounded-lg p-4"><code># 1 · pay the first decade with an SPT - issues a 3-credit session
+curl -i {{ $base }}/api/v1/stripe/scores/classics/80s \
+  -H 'Authorization: Payment method="stripe", challengeId="chal_...", sig="...", spt="spt_..."'
+
+→ Payment-Session: id="sess_...",
+    remaining="2", scope="stripe.classics"</code></pre>
+                        <pre class="codeblock min-w-0 overflow-x-auto rounded-lg p-4"><code># 2 · reuse it on the other decades - no charge, credits decrement
+curl {{ $base }}/api/v1/stripe/scores/classics/90s \
+  -H 'Authorization: Payment session="sess_..."'
+
+→ 200 OK · Payment-Session remaining="1"
+
+curl {{ $base }}/api/v1/stripe/scores/classics/00s \
+  -H 'Authorization: Payment session="sess_..."'
+
+→ 200 OK · Payment-Session remaining="0"</code></pre>
+                    </div>
                 </div>
             </div>
         </div>

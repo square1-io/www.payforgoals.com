@@ -2,8 +2,4 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('landing', [
-        'cfg' => config('payforgoals'),
-    ]);
-})->name('landing');
+Route::view('/', 'landing')->name('landing');
