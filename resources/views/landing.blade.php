@@ -511,18 +511,15 @@ curl {{ $base }}/api/v1/tempo/scores/classics/00s \
 
                 <div class="mt-5 panel min-w-0 rounded-xl p-6">
                     <span class="eyebrow">Step 1 · Get the challenge</span>
-                    <div class="grid gap-5 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-                        <div>
-                            <h3 class="mt-3 font-display text-lg font-700 text-ink">Hit a Stripe-rail endpoint</h3>
-                            <p class="mt-2 text-sm text-ink-soft">
-                                Copy the <code class="font-mono font-600 text-turf">challengeId</code> and
-                                <code class="font-mono font-600 text-turf">sig</code> from the response. The Stripe
-                                accept also includes the seller's <code class="font-mono font-600 text-turf">network_id</code>
-                                for Link wallets.
-                            </p>
-                            <pre id="s-step1" class="codeblock mt-4 overflow-x-auto rounded-lg p-4"><code>curl -i {{ $base }}/api/v1/stripe/scores/match/1</code></pre>
-                        </div>
-                        <pre class="codeblock overflow-x-auto rounded-lg p-4"><code>HTTP/1.1 402 Payment Required
+                    <h3 class="mt-3 font-display text-lg font-700 text-ink">Hit a Stripe-rail endpoint</h3>
+                    <p class="mt-2 max-w-3xl text-sm text-ink-soft">
+                        Copy the <code class="font-mono font-600 text-turf">challengeId</code> and
+                        <code class="font-mono font-600 text-turf">sig</code> from the response. The Stripe
+                        accept also includes the seller's <code class="font-mono font-600 text-turf">network_id</code>
+                        for Link wallets.
+                    </p>
+                    <pre id="s-step1" class="codeblock mt-4 overflow-x-auto rounded-lg p-4"><code>curl -i {{ $base }}/api/v1/stripe/scores/match/1</code></pre>
+                    <pre class="codeblock mt-4 overflow-x-auto rounded-lg p-4"><code>HTTP/1.1 402 Payment Required
 Content-Type: application/json
 
 {
