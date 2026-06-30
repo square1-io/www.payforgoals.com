@@ -8,31 +8,63 @@
     $tempoExplorerAddress = rtrim($links['tempo_explorer'], '/').'/address/'.$tempo['recipient'];
     // The famous scorelines that flicker across the hero board.
     $boardScores = ['7–1', '3–3', '4–3', '2–1', '5–1', '0–0', '6–1', '3–2'];
+
+    // Single source of truth for the FAQ: rendered visibly below (answers may
+    // contain links) and emitted as FAQPage structured data with the tags stripped.
+    $lk = fn (string $href, string $text): string =>
+        '<a href="'.$href.'" class="text-turf-bright underline-offset-4 hover:underline" target="_blank" rel="noreferrer">'.$text.'</a>';
+    $faqs = [
+        [
+            'q' => 'What is agentic commerce?',
+            'a' => 'Agentic commerce is buying and selling where the customer is a software agent rather than a person clicking through a checkout. The agent discovers a price, pays for exactly what it needs, and moves on. '.$brand.' is a small working example: an agent pays per request for a single football scoreline.',
+        ],
+        [
+            'q' => 'What is the Machine Payments Protocol (MPP)?',
+            'a' => 'The '.$lk($links['mpp'], 'Machine Payments Protocol (MPP)').' is an open way for a server to charge for an HTTP request and for a client to pay it using standard web mechanics. An unpaid request returns an HTTP 402 Payment Required challenge; the client settles it and retries, and the server returns the resource plus a receipt. It is the rail-agnostic plumbing underneath this demo.',
+        ],
+        [
+            'q' => 'How do machine payments work here?',
+            'a' => 'Machine payments happen inline, per request. There is no account, no checkout page and no stored card. The agent reads the 402 challenge, settles it on one of two rails, then replays the request with an Authorization: Payment header. Settlement is verified before the resource is served.',
+        ],
+        [
+            'q' => 'Which payment rails does '.$brand.' support?',
+            'a' => 'Two. '.$lk($links['stripe_spt'], 'Stripe Shared Payment Tokens').' (SPTs), settled inline as a PaymentIntent, and '.$lk($links['tempo_explorer'], 'Tempo').' pathUSD, an on-chain stablecoin transfer on the Tempo testnet. The same scoreline is sold over both rails; only the wire dialect of the 402 differs.',
+        ],
+        [
+            'q' => 'Do I need an account or a card on file?',
+            'a' => 'No. That is the point of agentic commerce: the buyer pays for one request in the moment, then leaves. Nothing is stored and there is no signup. You can inspect the API shape for free with a single trial score before paying for anything.',
+        ],
+        [
+            'q' => 'Is this a real protocol or just a gimmick?',
+            'a' => 'The demo is real and the payments settle for real (Stripe in test mode, Tempo on testnet). The gating is provided by '.$lk($links['square1'], 'Square1').'\'s open-source package '.$lk($links['package'], 'square1/laravel-mpp').', which drops into any Laravel app. Stripe live acceptance is currently US-gated; Tempo runs on testnet.',
+        ],
+    ];
 @endphp
 <!doctype html>
 <html lang="en" class="dotgrid">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $brand }} - relive football's greatest scorelines</title>
-    <meta name="description" content="{{ $brand }} returns the score, and only the score. A live demo of the Machine Payments Protocol over Tempo, by Square1.">
+    <title>{{ $brand }} - Agentic Commerce on the Machine Payments Protocol</title>
+    <meta name="description" content="{{ $brand }} is a live agentic commerce demo on the Machine Payments Protocol (MPP): AI agents pay per request for a football-scores API, by card or on-chain. No signup, no checkout.">
+    <meta name="keywords" content="agentic commerce, machine payments, machine payments protocol, MPP, agentic payments, AI agent payments, pay per request, 402 Payment Required, x402">
     <link rel="canonical" href="{{ $base }}/">
 
     {{-- Open Graph / social sharing --}}
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="{{ $brand }}">
     <meta property="og:url" content="{{ $base }}/">
-    <meta property="og:title" content="{{ $brand }} - football's greatest scorelines, on demand">
-    <meta property="og:description" content="Relive iconic results through a simple API. Under the hood: a live demo of the Machine Payments Protocol - software agents pay per request over Tempo. By Square1.">
+    <meta property="og:title" content="{{ $brand }} - Agentic Commerce on the Machine Payments Protocol">
+    <meta property="og:description" content="Relive iconic results through a simple API. Under the hood: a live demo of agentic payments - AI agents pay per request over the Machine Payments Protocol, by card or on-chain. By Square1.">
     <meta property="og:image" content="{{ $base }}/og.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="{{ $brand }} - a football scores API that's a live Machine Payments Protocol demo">
+    <meta property="og:image:alt" content="{{ $brand }} - a football scores API that's a live agentic commerce demo on the Machine Payments Protocol">
 
     {{-- Twitter / X --}}
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ $brand }} - football's greatest scorelines, on demand">
-    <meta name="twitter:description" content="A football scores API that's secretly a live Machine Payments Protocol demo - agents pay per request over Tempo. By Square1.">
+    <meta name="twitter:title" content="{{ $brand }} - Agentic Commerce on the Machine Payments Protocol">
+    <meta name="twitter:description" content="A football scores API that's secretly a live demo of agentic payments - AI agents pay per request over the Machine Payments Protocol. By Square1.">
     <meta name="twitter:image" content="{{ $base }}/og.png">
 
     {{-- Favicons --}}
@@ -41,6 +73,21 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <meta name="theme-color" content="#0a0e14">
+
+    {{-- Structured data: describes the page as an agentic-commerce / Machine Payments Protocol demo. --}}
+    <script type="application/ld+json">
+    {!! json_encode([
+        '@context' => 'https://schema.org',
+        '@type' => 'WebApplication',
+        'name' => $brand,
+        'url' => $base.'/',
+        'applicationCategory' => 'DeveloperApplication',
+        'description' => $brand.' is a live agentic commerce demo on the Machine Payments Protocol (MPP): AI agents pay per request for a football-scores API, by card (Stripe Shared Payment Tokens) or on-chain (Tempo pathUSD).',
+        'offers' => ['@type' => 'Offer', 'price' => $price['match'], 'priceCurrency' => 'USD'],
+        'author' => ['@type' => 'Organization', 'name' => 'Square1', 'url' => $links['square1']],
+        'keywords' => 'agentic commerce, machine payments, Machine Payments Protocol, MPP, AI agent payments, pay per request',
+    ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
+    </script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -58,6 +105,7 @@
             <a href="#premium" class="transition hover:text-turf-bright">Premium</a>
             <a href="#real" class="transition hover:text-turf-bright">Is this real?</a>
             <a href="#start" class="transition hover:text-turf-bright">Get started</a>
+            <a href="#faq" class="transition hover:text-turf-bright">FAQ</a>
         </nav>
         <a href="#api" class="rounded-md bg-turf px-3.5 py-2 font-display text-sm font-700 text-white transition hover:bg-turf-bright">
             Try it out
@@ -85,7 +133,7 @@
         <div class="board flap mt-12 rounded-xl p-6 md:p-8" style="animation-delay: .12s">
             <div class="flex flex-wrap items-baseline justify-between gap-4">
                 <span class="eyebrow" style="color: var(--color-amber-dim)">The board</span>
-                <span class="font-mono text-xs" style="color: #6f7d77">names withheld · scores only</span>
+                <span class="font-mono text-xs" style="color: #6f7d77">scores only · names coming soon</span>
             </div>
             <div class="mt-6 grid grid-cols-4 gap-x-4 gap-y-7 sm:gap-x-6 md:grid-cols-8">
                 @foreach ($boardScores as $i => $s)
@@ -132,7 +180,8 @@
             One resource. Two rails. No checkout.
         </h2>
         <p class="mt-5 max-w-2xl leading-relaxed text-ink-soft">
-            Free to browse, then pick how your agent pays. The same scoreline is exposed twice -
+            Agentic commerce, made concrete: a software agent pays per request over the Machine
+            Payments Protocol. Free to browse, then pick how your agent pays. The same scoreline is exposed twice -
             under <code class="font-mono font-600 text-turf">/tempo/</code> for on-chain settlement and
             <code class="font-mono font-600 text-turf">/stripe/</code> for cards - differing only by rail.
             Either way the client pays per request: no signup, no checkout page. Copy a command and run it.
@@ -329,7 +378,8 @@ curl {{ $base }}/api/v1/stripe/scores/match/1</code></pre>
                 <p>
                     MPP lets a server charge for a request using nothing but HTTP. There's no signup, no
                     checkout page, no stored card. The buyer is usually a <em class="not-italic font-600 text-ink">software agent</em>,
-                    and it pays per request, in the moment, then moves on.
+                    and it pays per request, in the moment, then moves on. This is what agentic commerce
+                    looks like in practice: machine payments settled inline, with no human at a checkout.
                 </p>
                 <p>
                     Those paid {{ $brand }} endpoints above are gated by exactly this package. The same
@@ -609,6 +659,40 @@ Payment-Receipt: id="rcpt_...", method="stripe",
             </div>
         </div>
     </div>
+</section>
+
+{{-- ============================== FAQ ============================== --}}
+<section id="faq" class="border-b" style="border-color: var(--color-line)">
+    <div class="mx-auto max-w-6xl px-5 py-20 md:py-28">
+        <p class="eyebrow">FAQ</p>
+        <h2 class="mt-4 max-w-3xl font-display text-3xl font-800 tracking-tight text-ink md:text-5xl">
+            Agentic commerce and machine payments, explained.
+        </h2>
+        <p class="mt-5 max-w-2xl leading-relaxed text-ink-soft">
+            The short version of what this demo is and how an agent pays for a request.
+        </p>
+
+        <div class="mt-10 grid gap-5 md:grid-cols-2">
+            @foreach ($faqs as $faq)
+                <div class="panel min-w-0 rounded-xl p-6">
+                    <h3 class="font-display text-lg font-700 text-ink">{{ $faq['q'] }}</h3>
+                    <p class="mt-3 text-sm leading-relaxed text-ink-soft">{!! $faq['a'] !!}</p>
+                </div>
+            @endforeach
+        </div>
+    </div>
+
+    <script type="application/ld+json">
+    {!! json_encode([
+        '@context' => 'https://schema.org',
+        '@type' => 'FAQPage',
+        'mainEntity' => array_map(fn ($f) => [
+            '@type' => 'Question',
+            'name' => $f['q'],
+            'acceptedAnswer' => ['@type' => 'Answer', 'text' => strip_tags($f['a'])],
+        ], $faqs),
+    ], JSON_UNESCAPED_SLASHES) !!}
+    </script>
 </section>
 
 </main>

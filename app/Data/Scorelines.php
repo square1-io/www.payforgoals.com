@@ -148,7 +148,8 @@ class Scorelines
 
     /**
      * The public, team-name-free representation of a scoreline — the home and
-     * away goals as separate fields, names conspicuously absent.
+     * away goals as separate fields; team names are not included yet (a
+     * coming-soon premium feature, not a deliberate hold-back).
      *
      * @param  array<string, mixed>  $entry
      * @return array<string, mixed>
