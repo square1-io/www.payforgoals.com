@@ -14,12 +14,13 @@ use Illuminate\Http\Request;
  */
 class ScoreController extends Controller
 {
-    /** Free. A random classic scoreline. No payment required. */
-    public function random(): JsonResponse
+    /** Free trial. The first scoreline, so you can inspect the API shape without paying. */
+    public function trial(): JsonResponse
     {
         return response()->json([
-            'tier' => 'free',
-            'scoreline' => Scorelines::present(Scorelines::random()),
+            'tier' => 'trial',
+            'scoreline' => Scorelines::present(Scorelines::first()),
+            'note' => 'This is the free trial score. Fetch any specific match at /api/v1/{tempo|stripe}/scores/match/{id}.',
         ]);
     }
 
@@ -31,7 +32,7 @@ class ScoreController extends Controller
         if (! $entry) {
             return response()->json([
                 'error' => 'No such scoreline.',
-                'detail' => "We have no record of match #{$id}. Try /api/v1/scores/random for inspiration.",
+                'detail' => "We have no record of match #{$id}. Try /api/v1/scores/trial for a free sample.",
             ], 404);
         }
 

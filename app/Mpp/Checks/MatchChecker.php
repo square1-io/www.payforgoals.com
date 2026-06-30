@@ -25,7 +25,7 @@ class MatchChecker
 
         return response()->json([
             'error' => 'No such scoreline.',
-            'detail' => "We have no record of match #{$id}. Try /api/v1/scores/random for inspiration.",
+            'detail' => "We have no record of match #{$id}. Try /api/v1/scores/trial for a free sample.",
         ], 404);
     }
 }

@@ -23,7 +23,7 @@ All endpoints return scorelines without team names, with `home_score` and `away_
 
 | Endpoint | Rail | Price | Notes |
 |----------|------|-------|-------|
-| `GET /api/v1/scores/random` | free | none | A random classic. No payment. |
+| `GET /api/v1/scores/trial` | free | none | One free score (the first), to inspect the API shape. No payment. |
 | `GET /api/v1/tempo/scores/match/{id}` | Tempo | `0.01` pathUSD | One specific match; settled on-chain. |
 | `GET /api/v1/tempo/scores/classics/{decade}` | Tempo | `0.05` pathUSD | Decade Pass: one payment grants 3 accesses. |
 | `GET /api/v1/stripe/scores/match/{id}` | Stripe | `$1.00` USD | One specific match; settled via PaymentIntent. |

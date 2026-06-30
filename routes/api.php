@@ -18,8 +18,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('v1')->group(function () {
-    // Free — rail-agnostic, no payment.
-    Route::get('/scores/random', [ScoreController::class, 'random']);
+    // Free trial: one fixed score (the first), rail-agnostic, no payment.
+    Route::get('/scores/trial', [ScoreController::class, 'trial']);
 
     // ── Tempo rail: on-chain pathUSD, mppx dialect, settled by a stock `npx mppx`
     //    agent (sub-cent pricing; on-chain has no card minimum). ──

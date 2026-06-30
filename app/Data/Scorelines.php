@@ -135,11 +135,15 @@ class Scorelines
         ));
     }
 
-    public static function random(): array
+    /**
+     * The single free "trial" scoreline: the first entry. Fixed, so the free
+     * endpoint reveals the API shape without giving away the whole catalogue.
+     *
+     * @return array<string, mixed>
+     */
+    public static function first(): array
     {
-        $all = self::all();
-
-        return $all[array_rand($all)];
+        return self::all()[0];
     }
 
     /**

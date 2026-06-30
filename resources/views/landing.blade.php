@@ -142,17 +142,17 @@
         <article class="panel mt-12 flex min-w-0 flex-col rounded-xl p-6 md:flex-row md:items-center md:gap-8">
             <div class="md:flex-1">
                 <div class="flex items-center gap-3">
-                    <span class="eyebrow">Free · either rail</span>
-                    <span class="scorechip led text-base">∞</span>
+                    <span class="eyebrow">Free trial · either rail</span>
+                    <span class="scorechip led text-base">1</span>
                 </div>
-                <h3 class="mt-3 font-display text-xl font-700 text-ink">Random classic</h3>
+                <h3 class="mt-3 font-display text-xl font-700 text-ink">Free trial</h3>
                 <p class="mt-2 max-w-md text-sm leading-relaxed text-ink-soft">
-                    A famous scoreline at random. No payment, no headers, no fuss - and no rail to choose.
+                    One free score to get started. Inspect the API shape with no payment, no headers and no rail to choose. Every other match is pay-per-view.
                 </p>
-                <div class="mt-3 font-mono text-xs text-ink-faint">GET /api/v1/scores/random</div>
+                <div class="mt-3 font-mono text-xs text-ink-faint">GET /api/v1/scores/trial</div>
             </div>
             <div class="relative mt-5 w-full min-w-0 md:mt-0 md:w-[30rem]">
-                <pre id="cmd-free" class="codeblock overflow-x-auto rounded-lg p-4 pr-16"><code>curl {{ $base }}/api/v1/scores/random</code></pre>
+                <pre id="cmd-free" class="codeblock overflow-x-auto rounded-lg p-4 pr-16"><code>curl {{ $base }}/api/v1/scores/trial</code></pre>
             </div>
         </article>
 
@@ -374,7 +374,7 @@ curl {{ $base }}/api/v1/stripe/scores/match/1</code></pre>
     <div class="mx-auto max-w-6xl px-5 py-20 md:py-28">
         <p class="eyebrow">Getting started</p>
         <h2 class="mt-4 max-w-3xl font-display text-3xl font-800 tracking-tight text-ink md:text-5xl">
-            Pay a {{ $brand }} request yourself.
+            Get your classic goals today!
         </h2>
         <p class="mt-5 max-w-2xl leading-relaxed text-ink-soft">
             Pick a settlement rail. Tempo runs fully end to end with the stock <code class="font-mono font-600 text-turf">npx mppx</code>

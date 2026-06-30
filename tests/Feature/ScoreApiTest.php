@@ -7,24 +7,27 @@ use Tests\TestCase;
 
 class ScoreApiTest extends TestCase
 {
-    public function test_free_endpoint_needs_no_payment(): void
+    public function test_trial_endpoint_needs_no_payment_and_returns_the_first_score(): void
     {
-        $this->getJson('/api/v1/scores/random')
+        $this->getJson('/api/v1/scores/trial')
             ->assertOk()
-            ->assertJsonPath('tier', 'free')
+            ->assertJsonPath('tier', 'trial')
+            ->assertJsonPath('scoreline.id', 1)            // always the first score
             ->assertJsonPath('scoreline.teams', null)
-            ->assertJsonStructure(['scoreline' => ['id', 'home_score', 'away_score', 'teams']])
-            ->assertJsonMissingPath('scoreline.teamsNote');
+            ->assertJsonStructure(['scoreline' => ['id', 'home_score', 'away_score', 'teams'], 'note']);
     }
 
-    public function test_free_endpoint_never_returns_team_names(): void
+    public function test_trial_endpoint_is_deterministic_and_hides_team_names(): void
     {
-        $body = $this->getJson('/api/v1/scores/random')->json();
+        // Same score every time: the free trial reveals the API shape without
+        // leaking the catalogue (hitting it repeatedly never yields a new score).
+        $first = $this->getJson('/api/v1/scores/trial')->json();
+        $second = $this->getJson('/api/v1/scores/trial')->json();
 
-        $this->assertNull($body['scoreline']['teams']);
-        $this->assertArrayNotHasKey('teamsNote', $body['scoreline']);
-        $this->assertIsInt($body['scoreline']['home_score']);
-        $this->assertIsInt($body['scoreline']['away_score']);
+        $this->assertSame($first['scoreline']['id'], $second['scoreline']['id']);
+        $this->assertNull($first['scoreline']['teams']);
+        $this->assertIsInt($first['scoreline']['home_score']);
+        $this->assertIsInt($first['scoreline']['away_score']);
     }
 
     public function test_tempo_pay_per_view_is_gated_with_an_mppx_dialect_402(): void
