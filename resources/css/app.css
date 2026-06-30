@@ -1,0 +1,244 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../views/**/*.blade.php';
+
+/*
+| Scoreline — a bright, professional "matchday broadsheet" identity.
+| The page is light and airy (white cards on a soft neutral ground), but the
+| signature is preserved: the scoreboard is a self-contained DARK device that
+| sits on the light page, so the amber LED digits still glow correctly. The
+| en-dash score is the one motif repeated everywhere.
+*/
+@theme {
+    --font-display: 'Archivo', ui-sans-serif, system-ui, sans-serif;
+    --font-sans: 'Archivo', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: 'Spline Sans Mono', ui-monospace, 'SF Mono', monospace;
+
+    /* Light page system */
+    --color-paper: #f6f8f7;        /* page ground — soft, faintly green-cool neutral */
+    --color-surface: #ffffff;      /* white cards */
+    --color-surface-2: #f0f3f1;    /* faint raised fill */
+    --color-line: #e2e7e4;         /* subtle 1px borders / hairlines */
+    --color-ink: #0e1a15;          /* near-black slate body text */
+    --color-ink-soft: #4d5b55;     /* muted secondary — AA on white */
+    --color-ink-faint: #6f7d77;    /* tertiary captions */
+
+    /* Turf — the professional primary accent (buttons, links, eyebrows) */
+    --color-turf: #0f4d3a;         /* deep pitch green */
+    --color-turf-bright: #1c7a5b;  /* turf, lit */
+    --color-turf-tint: #e7f0ec;    /* soft turf wash for highlighted surfaces */
+
+    /* The scoreboard device — dark, self-contained, where amber is allowed */
+    --color-board: #0a0e14;        /* pitch at night */
+    --color-board-2: #0d131c;      /* one notch up */
+    --color-board-line: #243140;   /* board internal hairlines */
+    --color-amber: #f5c518;        /* scoreboard bulb — digits only, on dark */
+    --color-amber-dim: #c79a16;
+
+    /* Legacy aliases kept so any stray utility still resolves sanely */
+    --color-night: #0a0e14;
+    --color-night-2: #0d131c;
+    --color-slate: #141d28;
+    --color-slate-2: #243140;
+    --color-sage: #4d5b55;
+    --color-sage-dim: #6f7d77;
+}
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        background-color: var(--color-paper);
+        color: var(--color-ink);
+        font-family: var(--font-sans);
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+    }
+
+    ::selection {
+        background: var(--color-turf);
+        color: #fff;
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--color-turf-bright);
+        outline-offset: 3px;
+        border-radius: 2px;
+    }
+}
+
+@layer components {
+    /* The scoreboard LED treatment — the page's signature element.
+       Only ever used INSIDE a dark .board / .codeblock surface. */
+    .led {
+        font-family: var(--font-mono);
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: 0.02em;
+        color: var(--color-amber);
+        text-shadow:
+            0 0 1px rgba(245, 197, 24, 0.9),
+            0 0 14px rgba(245, 197, 24, 0.45),
+            0 0 38px rgba(245, 197, 24, 0.18);
+    }
+
+    /* A self-contained dark scoreboard device that sits on the light page.
+       Gives the amber digits the dark backdrop they need to glow. */
+    .board {
+        background:
+            radial-gradient(120% 90% at 50% -20%, rgba(28, 122, 91, 0.18), transparent 60%),
+            linear-gradient(180deg, var(--color-board-2) 0%, var(--color-board) 100%);
+        border: 1px solid var(--color-board-line);
+        box-shadow:
+            0 1px 0 rgba(255, 255, 255, 0.04) inset,
+            0 18px 40px -24px rgba(10, 14, 20, 0.55);
+        color: #c9d2cd;
+    }
+
+    /* Small inline score chip — a mini scoreboard for badges in light copy. */
+    .scorechip {
+        display: inline-flex;
+        align-items: center;
+        background: var(--color-board);
+        border: 1px solid var(--color-board-line);
+        border-radius: 0.4rem;
+        padding: 0.06em 0.45em;
+        line-height: 1;
+        vertical-align: baseline;
+        box-shadow: 0 1px 2px rgba(10, 14, 20, 0.18);
+    }
+
+    /* Faint dot-matrix backdrop, like a stadium board grid — quiet on light. */
+    .dotgrid {
+        background-image: radial-gradient(rgba(15, 77, 58, 0.05) 1px, transparent 1px);
+        background-size: 22px 22px;
+    }
+
+    .eyebrow {
+        font-family: var(--font-mono);
+        font-weight: 600;
+        font-size: 0.72rem;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: var(--color-turf-bright);
+    }
+
+    /* White product cards: subtle 1px border + soft shadow. */
+    .panel {
+        background: var(--color-surface);
+        border: 1px solid var(--color-line);
+        box-shadow:
+            0 1px 2px rgba(14, 26, 21, 0.04),
+            0 12px 28px -20px rgba(14, 26, 21, 0.18);
+    }
+
+    /* Code stays dark — dark code on a light page reads professional. */
+    .codeblock {
+        font-family: var(--font-mono);
+        font-size: 0.83rem;
+        line-height: 1.65;
+        background: #0a0e14;
+        border: 1px solid var(--color-board-line);
+        color: #d4dcd7;
+    }
+
+    /* Copy-to-clipboard button injected into each .codeblock (see app.js). */
+    .codeblock-wrap {
+        position: relative;
+    }
+
+    .copybtn {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.9rem;
+        height: 1.9rem;
+        border-radius: 0.4rem;
+        color: #9aa8a1;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        cursor: pointer;
+        transition:
+            color 0.15s ease,
+            background 0.15s ease,
+            border-color 0.15s ease;
+    }
+
+    .copybtn span {
+        display: inline-flex;
+    }
+
+    .copybtn:hover {
+        color: #e7efea;
+        background: rgba(255, 255, 255, 0.12);
+    }
+
+    .copybtn:focus-visible {
+        outline: 2px solid var(--color-turf-bright);
+        outline-offset: 2px;
+    }
+
+    .copybtn .icon-check {
+        display: none;
+    }
+
+    .copybtn[data-copied='true'] {
+        color: #4ade80;
+        border-color: rgba(74, 222, 128, 0.45);
+        background: rgba(74, 222, 128, 0.12);
+    }
+
+    .copybtn[data-copied='true'] .icon-copy {
+        display: none;
+    }
+
+    .copybtn[data-copied='true'] .icon-check {
+        display: inline-flex;
+    }
+
+    .tab[aria-selected='true'] {
+        color: #fff;
+        background: var(--color-turf);
+    }
+
+    .tab[aria-selected='false'] {
+        color: var(--color-ink-soft);
+        background: transparent;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        transition-duration: 0.001ms !important;
+    }
+}
+
+/* Subtle entrance for the hero scoreboard. */
+@keyframes flap-in {
+    0% {
+        transform: translateY(10px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.flap {
+    animation: flap-in 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}

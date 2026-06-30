@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family:'Archivo'; font-weight:800; font-display:block;
+    src:url('file:///Users/conroyp/Herd/scoreline/public/build/assets/archivo-800-normal-cB6v3kRN.woff2') format('woff2'); }
+  @font-face { font-family:'Archivo'; font-weight:600; font-display:block;
+    src:url('file:///Users/conroyp/Herd/scoreline/public/build/assets/archivo-600-normal-anCjMumA.woff2') format('woff2'); }
+  @font-face { font-family:'Spline Sans Mono'; font-weight:700; font-display:block;
+    src:url('file:///Users/conroyp/Herd/scoreline/public/build/assets/spline-sans-mono-700-normal-BwW4xXNM.woff2') format('woff2'); }
+  @font-face { font-family:'Spline Sans Mono'; font-weight:500; font-display:block;
+    src:url('file:///Users/conroyp/Herd/scoreline/public/build/assets/spline-sans-mono-500-normal-Cy_wwipl.woff2') format('woff2'); }
+
+  :root{
+    --paper:#f6f8f7; --surface:#ffffff; --line:#e2e7e4;
+    --ink:#0e1a15; --ink-soft:#4d5b55; --ink-faint:#6f7d77;
+    --turf:#0f4d3a; --turf-bright:#1c7a5b; --turf-tint:#e7f0ec;
+    --board:#0a0e14; --board-line:#243140; --amber:#f5c518;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1200px;height:630px}
+  body{
+    background:
+      radial-gradient(120% 90% at 88% -10%, rgba(28,122,91,.10), transparent 55%),
+      var(--paper);
+    color:var(--ink); font-family:'Archivo',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    display:flex; flex-direction:column; justify-content:space-between;
+    padding:56px 72px 84px;
+  }
+  .mono{font-family:'Spline Sans Mono',monospace}
+  /* top bar */
+  .top{display:flex; align-items:center; justify-content:space-between}
+  .brand{display:flex; align-items:center; gap:14px}
+  .chip{display:inline-flex; align-items:center; background:var(--board); border:1px solid var(--board-line);
+    border-radius:9px; padding:7px 12px}
+  .led{font-family:'Spline Sans Mono',monospace; font-weight:700; color:var(--amber);
+    letter-spacing:.02em; text-shadow:0 0 1px rgba(245,197,24,.9), 0 0 16px rgba(245,197,24,.5), 0 0 42px rgba(245,197,24,.2)}
+  .wordmark{font-weight:800; font-size:34px; letter-spacing:-.01em}
+  .kicker{font-family:'Spline Sans Mono',monospace; font-weight:500; font-size:15px; letter-spacing:.26em;
+    text-transform:uppercase; color:var(--turf-bright)}
+  /* middle */
+  .mid{display:grid; grid-template-columns:1.32fr .9fr; align-items:center; gap:54px; flex:1; padding:42px 0 36px}
+  h1{font-weight:800; font-size:68px; line-height:.99; letter-spacing:-.022em}
+  h1 .accent{color:var(--turf)}
+  .tell{margin-top:30px}
+  .tell .line{font-size:22px; line-height:1.32; color:var(--ink-soft); max-width:540px}
+  .tell .line b{color:var(--ink); font-weight:600}
+  .flow{display:flex; align-items:center; gap:12px; margin-top:22px}
+  .step{font-family:'Spline Sans Mono',monospace; font-weight:700; font-size:15px; color:#cdd6e0;
+    background:var(--board); border:1px solid var(--board-line); border-radius:8px; padding:9px 14px}
+  .step .amb{color:var(--amber)}
+  .arrow{color:var(--ink-faint); font-family:'Spline Sans Mono',monospace; font-size:16px}
+  /* scoreboard device */
+  .board{background:linear-gradient(180deg,#0d131c,#0a0e14); border:1px solid var(--board-line);
+    border-radius:20px; padding:34px 30px; box-shadow:0 24px 60px rgba(10,14,20,.18); text-align:center}
+  .board .cap{display:flex; justify-content:space-between; align-items:center; color:#7c8a9c;
+    font-family:'Spline Sans Mono',monospace; font-size:13px; letter-spacing:.12em; text-transform:uppercase}
+  .board .dot{width:9px; height:9px; border-radius:50%; background:var(--amber); box-shadow:0 0 10px rgba(245,197,24,.8)}
+  .score{font-size:148px; line-height:1; margin:26px 0 18px; font-family:'Spline Sans Mono',monospace; font-weight:700}
+  .board .sub{color:#6f7d8c; font-family:'Spline Sans Mono',monospace; font-size:14px; letter-spacing:.08em}
+  /* footer */
+  .foot{display:flex; align-items:center; justify-content:space-between;
+    border-top:1px solid var(--line); padding-top:22px}
+  .foot .by{font-family:'Spline Sans Mono',monospace; font-size:16px; color:var(--ink-soft)}
+  .foot .by b{color:var(--turf); font-weight:500}
+  .foot .url{font-family:'Spline Sans Mono',monospace; font-size:15px; color:var(--ink-faint)}
+</style>
+</head>
+<body>
+  <div class="top">
+    <div class="brand">
+      <span class="chip"><span class="led" style="font-size:20px">P&ndash;</span></span>
+      <span class="wordmark">PayForGoals</span>
+    </div>
+    <span class="kicker">Football scores &middot; API</span>
+  </div>
+
+  <div class="mid">
+    <div>
+      <div class="kicker" style="font-size:14px">Matchday &middot; on demand</div>
+      <h1 style="margin-top:16px">The greatest<br>scorelines in<br>football. <span class="accent">On tap.</span></h1>
+      <div class="tell">
+        <p class="line">Under the hood: a live demo of the <b>Machine Payments Protocol</b> &mdash; software agents pay <b>per request</b>, over Tempo.</p>
+        <div class="flow">
+          <span class="step"><span class="amb">402</span> Payment&nbsp;Required</span>
+          <span class="arrow">&rarr;</span>
+          <span class="step">pay</span>
+          <span class="arrow">&rarr;</span>
+          <span class="step"><span class="amb">200</span> + receipt</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="board">
+      <div class="cap"><span>The board</span><span class="dot"></span></div>
+      <div class="score led">7&ndash;1</div>
+      <div class="sub">names withheld &middot; scores only</div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <div class="by">by <b>Square1</b> &middot; square1-io/laravel-mpp</div>
+    <div class="url">a Machine Payments Protocol demo</div>
+  </div>
+</body>
+</html>
