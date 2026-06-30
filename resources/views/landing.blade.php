@@ -534,7 +534,6 @@ Content-Type: application/json
     }
   ]
 }</code></pre>
-                    </div>
                 </div>
 
                 {{-- Stripe payment options --}}
