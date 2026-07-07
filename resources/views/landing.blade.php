@@ -732,6 +732,7 @@ curl {{ $base }}/api/v1/stripe/scores/classics/00s \
             <nav class="flex flex-col gap-2 font-mono text-sm text-ink-soft md:text-right">
                 <a href="{{ $links['square1'] }}" class="transition hover:text-turf-bright">square1.io →</a>
                 <a href="{{ $links['package'] }}" class="transition hover:text-turf-bright">github · laravel-mpp →</a>
+                <a href="{{ $links['source'] }}" class="transition hover:text-turf-bright">github · site source →</a>
                 <a href="{{ $links['mpp'] }}" class="transition hover:text-turf-bright">mpp.dev →</a>
                 <a href="{{ $tempoExplorerAddress }}" class="transition hover:text-turf-bright" target="_blank" rel="noreferrer">Tempo recipient →</a>
             </nav>

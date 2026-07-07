@@ -37,6 +37,7 @@ return [
     'links' => [
         'square1' => 'https://www.square1.io',
         'package' => 'https://github.com/square1-io/laravel-mpp',
+        'source' => 'https://github.com/square1-io/www.payforgoals.com',
         'mpp' => 'https://mpp.dev',
         'tempo_explorer' => 'https://explore.testnet.tempo.xyz',
         'stripe_spt' => 'https://docs.stripe.com/agentic-commerce/concepts/shared-payment-tokens',
