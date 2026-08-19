@@ -1,7 +1,7 @@
 @php
     // $brand, $price, $tempo and $links are supplied by the landing View Composer
     // (App\Providers\AppServiceProvider), sourced from config/payforgoals.php.
-    $stripe = $price['stripe'];
+    $stripe = $price;
     $base = rtrim(config('app.url'), '/');
     $tempoExplorerAddress = rtrim($links['tempo_explorer'], '/').'/address/'.$tempo['recipient'];
     // The famous scorelines that flicker across the hero board.
@@ -26,7 +26,7 @@
         ],
         [
             'q' => 'Which payment rails does '.$brand.' support?',
-            'a' => 'Two. '.$lk($links['stripe_spt'], 'Stripe Shared Payment Tokens').' (SPTs), settled inline as a PaymentIntent, and '.$lk($links['tempo_explorer'], 'Tempo').' pathUSD, an on-chain stablecoin transfer on the Tempo testnet. The same scoreline is sold over both rails; only the wire dialect of the 402 differs.',
+            'a' => 'Two. '.$lk($links['stripe_spt'], 'Stripe Shared Payment Tokens').' (SPTs), settled inline as a PaymentIntent, and '.$lk($links['tempo_explorer'], 'Tempo').' pathUSD, an on-chain stablecoin transfer on the Tempo testnet. One unpaid request offers both methods, and the agent chooses one.',
         ],
         [
             'q' => 'Do I need an account or a card on file?',
@@ -152,7 +152,7 @@
                 <a href="{{ $tempoExplorerAddress }}" class="text-turf-bright underline-offset-4 hover:underline" target="_blank" rel="noreferrer">Tempo</a>,
                 or by card over
                 <a href="{{ $links['stripe_spt'] }}" class="text-turf-bright underline-offset-4 hover:underline" target="_blank" rel="noreferrer">Stripe</a>.
-                Pick the endpoint that matches your agent's wallet.
+                Your agent picks whichever rail it can pay.
             </p>
             <p class="font-mono text-sm leading-relaxed text-ink-soft">
                 One detail. We return the score, and only the score. Team names are a premium feature,
@@ -179,17 +179,17 @@
         </h2>
         <p class="mt-5 max-w-2xl leading-relaxed text-ink-soft">
             Agentic commerce, made concrete: a software agent pays per request over the Machine
-            Payments Protocol. Free to browse, then pick how your agent pays. The same scoreline is exposed twice -
-            under <code class="font-mono font-600 text-turf">/tempo/</code> for on-chain settlement and
-            <code class="font-mono font-600 text-turf">/stripe/</code> for cards - differing only by rail.
-            Either way the client pays per request: no signup, no checkout page. Copy a command and run it.
+            Payments Protocol. Free to browse, then pick how your agent pays. One endpoint,
+            <code class="font-mono font-600 text-turf">/api/v1/scores/match/{id}</code>, offers Stripe
+            and Tempo together. Its 402 carries one challenge for each method; the agent pays one
+            and retries the same URL. No signup, no checkout page.
         </p>
 
         {{-- FREE - rail-agnostic, full width --}}
         <article class="panel mt-12 flex min-w-0 flex-col rounded-xl p-6 md:flex-row md:items-center md:gap-8">
             <div class="md:flex-1">
                 <div class="flex items-center gap-3">
-                    <span class="eyebrow">Free trial · either rail</span>
+                    <span class="eyebrow">Free trial · no payment</span>
                     <span class="scorechip led text-base">1</span>
                 </div>
                 <h3 class="mt-3 font-display text-xl font-700 text-ink">Free trial</h3>
@@ -210,10 +210,10 @@
             <div class="panel flex min-w-0 flex-col rounded-xl p-6 ring-1 ring-turf/15">
                 <div class="flex items-center justify-between border-b pb-4" style="border-color: var(--color-line)">
                     <div>
-                        <span class="eyebrow">Tempo rail</span>
+                        <span class="eyebrow">Pay on-chain</span>
                         <h3 class="mt-1.5 font-display text-xl font-700 text-ink">On-chain · pathUSD</h3>
                     </div>
-                    <span class="cursor-help rounded-full border px-2.5 py-0.5 font-mono text-[11px] text-turf" style="border-color: var(--color-turf-tint); background: var(--color-turf-tint)" title="mppx dialect - the 402 carries a base64url request blob that a stock npx mppx agent reads. (Stripe uses the native accepts[] dialect instead.)">mppx dialect</span>
+                    <span class="rounded-full border px-2.5 py-0.5 font-mono text-[11px] text-turf" style="border-color: var(--color-turf-tint); background: var(--color-turf-tint)">Tempo challenge</span>
                 </div>
 
                 {{-- pay-per-view --}}
@@ -223,11 +223,11 @@
                         <span class="scorechip led text-sm">{{ $price['match'] }}</span>
                     </div>
                     <p class="mt-1.5 text-sm leading-relaxed text-ink-soft">
-                        One result by id. <span class="font-600 text-ink">{{ $price['match'] }} {{ $price['currency'] }}</span> per request, settled on-chain.
+                        One result by id from the shared endpoint, settled on-chain as {{ $price['match'] }} pathUSD.
                     </p>
-                    <div class="mt-3 font-mono text-xs text-ink-faint">GET /api/v1/tempo/scores/match/{id}</div>
+                    <div class="mt-3 font-mono text-xs text-ink-faint">GET /api/v1/scores/match/{id}</div>
                     <div class="relative mt-3 w-full min-w-0">
-                        <pre id="cmd-t-ppv" class="codeblock overflow-x-auto rounded-lg p-4"><code>npx mppx {{ $base }}/api/v1/tempo/scores/match/1 \
+                        <pre id="cmd-t-ppv" class="codeblock overflow-x-auto rounded-lg p-4"><code>npx mppx {{ $base }}/api/v1/scores/match/1 \
   --network testnet</code></pre>
                     </div>
                 </div>
@@ -241,9 +241,9 @@
                     <p class="mt-1.5 text-sm leading-relaxed text-ink-soft">
                         One payment of <span class="font-600 text-ink">{{ $price['classics'] }} {{ $price['currency'] }}</span> unlocks the 80s, 90s and 00s - three calls on a reusable session.
                     </p>
-                    <div class="mt-3 font-mono text-xs text-ink-faint">GET /api/v1/tempo/scores/classics/{80s|90s|00s}</div>
+                    <div class="mt-3 font-mono text-xs text-ink-faint">GET /api/v1/scores/classics/{80s|90s|00s}</div>
                     <div class="relative mt-3 w-full min-w-0">
-                        <pre id="cmd-t-pass" class="codeblock overflow-x-auto rounded-lg p-4"><code>npx mppx {{ $base }}/api/v1/tempo/scores/classics/80s \
+                        <pre id="cmd-t-pass" class="codeblock overflow-x-auto rounded-lg p-4"><code>npx mppx {{ $base }}/api/v1/scores/classics/80s \
   --network testnet</code></pre>
                     </div>
                 </div>
@@ -253,10 +253,10 @@
             <div class="panel flex min-w-0 flex-col rounded-xl p-6">
                 <div class="flex items-center justify-between border-b pb-4" style="border-color: var(--color-line)">
                     <div>
-                        <span class="eyebrow">Stripe rail</span>
+                        <span class="eyebrow">Pay by card</span>
                         <h3 class="mt-1.5 font-display text-xl font-700 text-ink">Cards · Shared Payment Tokens</h3>
                     </div>
-                    <span class="cursor-help rounded-full border px-2.5 py-0.5 font-mono text-[11px] text-turf" style="border-color: var(--color-turf-tint); background: var(--color-turf-tint)" title="Native MPP dialect - the 402 lists payment options as a signed accepts[] array. (Tempo uses the mppx dialect instead.)">native dialect</span>
+                    <span class="rounded-full border px-2.5 py-0.5 font-mono text-[11px] text-turf" style="border-color: var(--color-turf-tint); background: var(--color-turf-tint)">Stripe challenge</span>
                 </div>
 
                 {{-- pay-per-view --}}
@@ -266,13 +266,13 @@
                         <span class="scorechip led text-sm">${{ $stripe['match'] }}</span>
                     </div>
                     <p class="mt-1.5 text-sm leading-relaxed text-ink-soft">
-                        Same result by id. <span class="font-600 text-ink">${{ $stripe['match'] }} {{ $stripe['currency'] }}</span> per request - priced to clear Stripe's card minimum.
+                        The same result and price, paid with a Stripe Shared Payment Token.
                     </p>
-                    <div class="mt-3 font-mono text-xs text-ink-faint">GET /api/v1/stripe/scores/match/{id}</div>
+                    <div class="mt-3 font-mono text-xs text-ink-faint">GET /api/v1/scores/match/{id}</div>
                     <div class="relative mt-3 w-full min-w-0">
-                        <pre id="cmd-s-ppv" class="codeblock overflow-x-auto rounded-lg p-4"><code># native MPP 402 - an SPT-capable agent
-# presents a Shared Payment Token and retries
-curl {{ $base }}/api/v1/stripe/scores/match/1</code></pre>
+                        <pre id="cmd-s-ppv" class="codeblock overflow-x-auto rounded-lg p-4"><code>link-cli mpp pay {{ $base }}/api/v1/scores/match/1 \
+  --context "Purchase scoreline #1 from PayForGoals for $1.00 USD because the user asked the agent to retrieve this specific football result from the demo API." \
+  --test</code></pre>
                     </div>
                 </div>
 
@@ -285,9 +285,11 @@ curl {{ $base }}/api/v1/stripe/scores/match/1</code></pre>
                     <p class="mt-1.5 text-sm leading-relaxed text-ink-soft">
                         One payment of <span class="font-600 text-ink">${{ $stripe['classics'] }} {{ $stripe['currency'] }}</span> unlocks all three decades - same metered session, settled on a PaymentIntent.
                     </p>
-                    <div class="mt-3 font-mono text-xs text-ink-faint">GET /api/v1/stripe/scores/classics/{80s|90s|00s}</div>
+                    <div class="mt-3 font-mono text-xs text-ink-faint">GET /api/v1/scores/classics/{80s|90s|00s}</div>
                     <div class="relative mt-3 w-full min-w-0">
-                        <pre id="cmd-s-pass" class="codeblock overflow-x-auto rounded-lg p-4"><code>curl {{ $base }}/api/v1/stripe/scores/classics/80s</code></pre>
+                        <pre id="cmd-s-pass" class="codeblock overflow-x-auto rounded-lg p-4"><code>link-cli mpp pay {{ $base }}/api/v1/scores/classics/80s \
+  --context "Purchase a three-use Decade Pass from PayForGoals for $3.00 USD because the user asked the agent to retrieve classic football results." \
+  --test</code></pre>
                     </div>
                 </div>
             </div>
@@ -425,11 +427,62 @@ curl {{ $base }}/api/v1/stripe/scores/match/1</code></pre>
             Get your classic goals today!
         </h2>
         <p class="mt-5 max-w-2xl leading-relaxed text-ink-soft">
-            Pick a settlement rail. Tempo runs fully end to end with the stock <code class="font-mono font-600 text-turf">npx mppx</code>
-            client. Stripe returns the same kind of paid resource after the buyer presents an SPT through Link or a test token.
+            Call one endpoint and choose a settlement method. Tempo runs end to end with
+            <code class="font-mono font-600 text-turf">npx mppx</code>; Stripe uses a Shared Payment Token
+            from Link or a test buyer account.
         </p>
 
-        <div data-tabs class="mt-10">
+        <div class="panel mt-10 rounded-xl p-6">
+            <span class="eyebrow">Optional negotiation · Accept-Payment</span>
+            <h3 class="mt-3 font-display text-lg font-700 text-ink">Hint which challenges your client prefers</h3>
+            <p class="mt-2 max-w-3xl text-sm leading-relaxed text-ink-soft">
+                With no hint, the server offers both methods. A client can ask for one method, or rank
+                several with quality values. The returned <code class="font-mono font-600 text-turf">WWW-Authenticate</code>
+                challenges are always authoritative.
+            </p>
+            <div data-tabs class="mt-5">
+                <div role="tablist" aria-label="Accept-Payment examples" class="flex max-w-full gap-1 overflow-x-auto rounded-lg border bg-surface p-1 font-display text-sm font-700" style="border-color: var(--color-line)">
+                    <button role="tab" id="tab-negotiate-both" class="tab shrink-0 rounded-md px-4 py-2 transition" aria-selected="true" aria-controls="panel-negotiate-both">
+                        No preference
+                    </button>
+                    <button role="tab" id="tab-negotiate-tempo" class="tab shrink-0 rounded-md px-4 py-2 transition" aria-selected="false" aria-controls="panel-negotiate-tempo" tabindex="-1">
+                        Tempo only
+                    </button>
+                    <button role="tab" id="tab-negotiate-stripe" class="tab shrink-0 rounded-md px-4 py-2 transition" aria-selected="false" aria-controls="panel-negotiate-stripe" tabindex="-1">
+                        Stripe only
+                    </button>
+                </div>
+
+                <div role="tabpanel" id="panel-negotiate-both" aria-labelledby="tab-negotiate-both" class="mt-4 grid gap-4 lg:grid-cols-2">
+                    <pre class="codeblock min-w-0 overflow-x-auto rounded-lg p-4"><code>curl -i {{ $base }}/api/v1/scores/match/1</code></pre>
+                    <pre class="codeblock min-w-0 overflow-x-auto rounded-lg p-4"><code>HTTP/1.1 402 Payment Required
+Content-Type: application/problem+json
+Cache-Control: no-store, private
+<span class="text-turf-bright">WWW-Authenticate: Payment … method="stripe" …,
+  Payment … method="tempo" …</span></code></pre>
+                </div>
+
+                <div role="tabpanel" id="panel-negotiate-tempo" aria-labelledby="tab-negotiate-tempo" class="mt-4 grid gap-4 lg:grid-cols-2" hidden>
+                    <pre class="codeblock min-w-0 overflow-x-auto rounded-lg p-4"><code>curl -i {{ $base }}/api/v1/scores/match/1 \
+  -H 'Accept-Payment: tempo/charge'</code></pre>
+                    <pre class="codeblock min-w-0 overflow-x-auto rounded-lg p-4"><code>HTTP/1.1 402 Payment Required
+Content-Type: application/problem+json
+Cache-Control: no-store, private
+<span class="text-turf-bright">WWW-Authenticate: Payment … method="tempo" …</span></code></pre>
+                </div>
+
+                <div role="tabpanel" id="panel-negotiate-stripe" aria-labelledby="tab-negotiate-stripe" class="mt-4 grid gap-4 lg:grid-cols-2" hidden>
+                    <pre class="codeblock min-w-0 overflow-x-auto rounded-lg p-4"><code>curl -i {{ $base }}/api/v1/scores/match/1 \
+  -H 'Accept-Payment: stripe/charge'</code></pre>
+                    <pre class="codeblock min-w-0 overflow-x-auto rounded-lg p-4"><code>HTTP/1.1 402 Payment Required
+Content-Type: application/problem+json
+Cache-Control: no-store, private
+<span class="text-turf-bright">WWW-Authenticate: Payment … method="stripe" …</span></code></pre>
+                </div>
+            </div>
+        </div>
+
+        <div data-tabs class="mt-8">
             {{-- Tablist --}}
             <div role="tablist" aria-label="Settlement rail" class="inline-flex gap-1 rounded-lg border bg-surface p-1 font-display text-sm font-700" style="border-color: var(--color-line)">
                 <button role="tab" id="tab-tempo" class="tab rounded-md px-4 py-2 transition" aria-selected="true" aria-controls="panel-tempo">
@@ -457,7 +510,7 @@ npx mppx account fund --network testnet</code></pre>
                         <span class="eyebrow">Step 2 · Call it</span>
                         <h3 class="mt-3 font-display text-lg font-700 text-ink">Hit a paid endpoint</h3>
                         <p class="mt-2 text-sm text-ink-soft">mppx fetches the <span class="scorechip led text-xs">402</span>, signs the transfer, and retries - all in one command.</p>
-                        <pre id="t-step2" class="codeblock mt-4 overflow-x-auto rounded-lg p-4"><code>npx mppx {{ $base }}/api/v1/tempo/scores/match/1 \
+                        <pre id="t-step2" class="codeblock mt-4 overflow-x-auto rounded-lg p-4"><code>npx mppx {{ $base }}/api/v1/scores/match/1 \
   --network testnet --account main</code></pre>
                     </div>
                 </div>
@@ -471,10 +524,13 @@ npx mppx account fund --network testnet</code></pre>
                             <span class="font-mono text-[11px] text-ink-faint">application/problem+json</span>
                         </div>
                         <pre class="codeblock mt-4 overflow-x-auto rounded-lg p-4"><code>HTTP/1.1 402 Payment Required
+Content-Type: application/problem+json
+Cache-Control: no-store, private
 WWW-Authenticate: Payment id="LRt7…w7k",
-  realm="{{ parse_url($base, PHP_URL_HOST) ?: 'localhost' }}", method="tempo",
-  intent="charge", request="&lt;base64&gt;",
-  expires="2026-06-23T12:57:10.224Z"
+  realm="{{ parse_url($base, PHP_URL_HOST) ?: 'localhost' }}", method="stripe",
+  intent="charge", request="&lt;base64url&gt;", …,
+  Payment id="Kf9c…x2m", realm="…", method="tempo",
+  intent="charge", request="&lt;base64url&gt;", …
 
 {
   "type": "https://paymentauth.org/problems/payment-required",
@@ -484,9 +540,9 @@ WWW-Authenticate: Payment id="LRt7…w7k",
   "challengeId": "LRt7…w7k"
 }</code></pre>
                         <p class="mt-3 break-words font-mono text-xs leading-relaxed text-ink-faint">
-                            request decodes to →
-                            <span class="text-ink-soft">{"amount":"10000","currency":"{{ \Illuminate\Support\Str::limit($tempo['token'], 10, '…') }}","methodDetails":{"chainId":{{ $tempo['chain_id'] }}},"recipient":"{{ \Illuminate\Support\Str::limit($tempo['recipient'], 8, '…') }}"}</span>
-                            <br>10000 = {{ $price['match'] }} pathUSD at {{ $tempo['decimals'] }} decimals.
+                            one 402, one challenge per rail. mppx picks Tempo. Its request decodes to →
+                            <span class="text-ink-soft">{"amount":"1000000","currency":"{{ \Illuminate\Support\Str::limit($tempo['token'], 10, '…') }}","methodDetails":{"chainId":{{ $tempo['chain_id'] }},"memo":"0x…","supportedModes":["pull"]},"recipient":"{{ \Illuminate\Support\Str::limit($tempo['recipient'], 8, '…') }}"}</span>
+                            <br>1000000 = {{ $price['match'] }} pathUSD at {{ $tempo['decimals'] }} decimals.
                         </p>
                     </div>
 
@@ -504,7 +560,10 @@ Payment-Receipt: &lt;base64url-json&gt;
   "method": "tempo",
   "status": "success",
   "timestamp": "2026-06-23T12:51:42.163Z",
-  "reference": "0x3da1…913b"
+  "reference": "0x3da1…913b",
+  "challengeId": "Kf9c…x2m",
+  "amount": "1000000",
+  "currency": "{{ \Illuminate\Support\Str::limit($tempo['token'], 10, '…') }}"
 }</code></pre>
                         <p class="mt-3 break-words font-mono text-xs leading-relaxed text-ink-faint">
                             <span class="text-ink-soft">reference</span> is the settled transaction hash. The funds - {{ $price['match'] }} pathUSD -
@@ -520,23 +579,23 @@ Payment-Receipt: &lt;base64url-json&gt;
                     <h3 class="mt-3 font-display text-lg font-700 text-ink">One payment, three decades</h3>
                     <p class="mt-2 max-w-3xl text-sm text-ink-soft">
                         A metered endpoint charges once and hands back a <code class="font-mono font-600 text-turf">Payment-Session</code>
-                        with credits. Present that session on the sibling endpoints and they're served with no
+                        with credits. Present that session for the same endpoint's other decades and they're served with no
                         new payment, until the credits run out.
                     </p>
                     <div class="mt-5 grid gap-5 lg:grid-cols-2">
                         <pre class="codeblock min-w-0 overflow-x-auto rounded-lg p-4"><code># 1 · pay once - issues a 3-credit session
-npx mppx {{ $base }}/api/v1/tempo/scores/classics/80s \
+npx mppx {{ $base }}/api/v1/scores/classics/80s \
   --network testnet --account main -i
 
 → Payment-Session: id="sess_…EP",
-    remaining="2", scope="tempo.classics"</code></pre>
+    remaining="2", scope="classics"</code></pre>
                         <pre class="codeblock min-w-0 overflow-x-auto rounded-lg p-4"><code># 2 · reuse it - no charge, credits decrement
-curl {{ $base }}/api/v1/tempo/scores/classics/90s \
+curl {{ $base }}/api/v1/scores/classics/90s \
   -H 'Authorization: Payment session="sess_…EP"'
 
 → 200 OK · Payment-Session remaining="1"
 
-curl {{ $base }}/api/v1/tempo/scores/classics/00s \
+curl {{ $base }}/api/v1/scores/classics/00s \
   -H 'Authorization: Payment session="sess_…EP"'
 
 → 200 OK · Payment-Session remaining="0"</code></pre>
@@ -548,40 +607,34 @@ curl {{ $base }}/api/v1/tempo/scores/classics/00s \
             <div role="tabpanel" id="panel-stripe" aria-labelledby="tab-stripe" class="mt-8" hidden>
 
                 <div class="panel rounded-xl p-6" style="background: var(--color-turf-tint); border-color: var(--color-turf-tint)">
-                    <span class="eyebrow">Stripe rail</span>
-                    <h3 class="mt-3 font-display text-lg font-700 text-ink">Two ways to satisfy the same Stripe challenge</h3>
+                    <span class="eyebrow">Same endpoint, card method</span>
+                    <h3 class="mt-3 font-display text-lg font-700 text-ink">Pay the shared 402 with a Shared Payment Token</h3>
                     <p class="mt-2 max-w-3xl text-sm leading-relaxed text-ink-soft">
-                        A Stripe endpoint returns a native MPP <code class="font-mono font-600 text-turf">accepts[]</code>
-                        challenge. From the client side, you can pay it with Stripe Link, or mint a test Shared
-                        Payment Token yourself and replay the request.
+                        The same <code class="font-mono font-600 text-turf">/api/v1/scores/match/{id}</code>
+                        402 carries a <code class="font-mono font-600 text-turf">method="stripe"</code> challenge
+                        alongside Tempo. Pay it with Stripe Link, or mint a test Shared Payment Token yourself.
                     </p>
                 </div>
 
                 <div class="mt-5 panel min-w-0 rounded-xl p-6">
-                    <span class="eyebrow">Step 1 · Get the challenge</span>
-                    <h3 class="mt-3 font-display text-lg font-700 text-ink">Hit a Stripe-rail endpoint</h3>
+                    <span class="eyebrow">Step 1 · Read the Stripe challenge</span>
+                    <h3 class="mt-3 font-display text-lg font-700 text-ink">Inspect the shared endpoint's 402</h3>
                     <p class="mt-2 max-w-3xl text-sm text-ink-soft">
-                        Copy the <code class="font-mono font-600 text-turf">challengeId</code> and
-                        <code class="font-mono font-600 text-turf">sig</code> from the response. The Stripe
-                        accept also includes the seller's <code class="font-mono font-600 text-turf">network_id</code>
-                        for Link wallets.
+                        This plain curl only inspects the challenge. The Stripe challenge's
+                        <code class="font-mono font-600 text-turf">request</code> carries the amount in minor units
+                        and the seller's network profile; a payment client handles the credential and retry.
                     </p>
-                    <pre id="s-step1" class="codeblock mt-4 overflow-x-auto rounded-lg p-4"><code>curl -i {{ $base }}/api/v1/stripe/scores/match/1</code></pre>
+                    <pre id="s-step1" class="codeblock mt-4 overflow-x-auto rounded-lg p-4"><code>curl -i {{ $base }}/api/v1/scores/match/1 \
+  -H 'Accept-Payment: stripe/charge'</code></pre>
                     <pre class="codeblock mt-4 overflow-x-auto rounded-lg p-4"><code>HTTP/1.1 402 Payment Required
-Content-Type: application/json
-
-{
-  "challengeId": "chal_...",
-  "accepts": [
-    {
-      "method": "stripe",
-      "amount": "{{ $stripe['match'] }}",
-      "currency": "{{ $stripe['currency'] }}",
-      "network_id": "profile_...",
-      "sig": "..."
-    }
-  ]
-}</code></pre>
+Content-Type: application/problem+json
+Cache-Control: no-store, private
+WWW-Authenticate: Payment id="…", realm="…", method="stripe",
+  intent="charge", request="&lt;base64url&gt;", expires="…", opaque="…"</code></pre>
+                    <p class="mt-3 break-words font-mono text-xs leading-relaxed text-ink-faint">
+                        the stripe request decodes to →
+                        <span class="text-ink-soft">{"amount":"100","currency":"usd","methodDetails":{"networkId":"profile_…","paymentMethodTypes":["card"]}}</span>
+                    </p>
                 </div>
 
                 {{-- Stripe payment options --}}
@@ -594,17 +647,13 @@ Content-Type: application/json
                         </div>
                         <h3 class="mt-3 font-display text-lg font-700 text-ink">Approve in Link, retry with the SPT</h3>
                         <p class="mt-2 text-sm leading-relaxed text-ink-soft">
-                            Link is the production buyer wallet for Stripe SPTs. It currently requires a US Link account.
-                            The buyer approves the spend, then the wallet presents the token to this API.
+                            Link is the buyer wallet for Stripe SPTs and currently requires a US Link account.
+                            This command reads the challenge, requests approval, presents a test token and retries.
                         </p>
                         <pre id="s-link" class="codeblock mt-4 overflow-x-auto rounded-lg p-4"><code>link-cli auth login
-link-cli spend-request create \
-  --network-id profile_... \
-  --amount 100 \
-  --credential-type shared_payment_token
-
-link-cli mpp pay {{ $base }}/api/v1/stripe/scores/match/1 \
-  --spend-request-id lsrq_...</code></pre>
+link-cli mpp pay {{ $base }}/api/v1/scores/match/1 \
+  --context "Purchase scoreline #1 from PayForGoals for $1.00 USD because the user asked the agent to retrieve this specific football result from the demo API." \
+  --test</code></pre>
                     </div>
 
                     {{-- Self-minted test SPT --}}
@@ -615,18 +664,22 @@ link-cli mpp pay {{ $base }}/api/v1/stripe/scores/match/1 \
                         </div>
                         <h3 class="mt-3 font-display text-lg font-700 text-ink">Mint a buyer token and replay</h3>
                         <p class="mt-2 text-sm leading-relaxed text-ink-soft">
-                            For a quick test, mint an SPT from a buyer Stripe test account, then echo the challenge
-                            signature back with the token. This exercises the same payment retry shape.
+                            For a quick test, mint an SPT from a buyer Stripe test account, then let an MPP client
+                            replay the request. The credential contains the echoed challenge and token as base64url JSON.
                         </p>
                         <pre id="s-spt" class="codeblock mt-4 overflow-x-auto rounded-lg p-4"><code>curl -s -u "sk_test_buyer_...:" \
   -H "Stripe-Version: 2026-05-27.preview" \
   -X POST https://api.stripe.com/v1/test_helpers/shared_payment/granted_tokens \
   -d payment_method=pm_card_visa \
   -d "usage_limits[currency]=usd" \
-  -d "usage_limits[max_amount]=100"
+  -d "usage_limits[max_amount]=100" \
+  -d "seller_details[network_id]=profile_..."
 
-curl -i {{ $base }}/api/v1/stripe/scores/match/1 \
-  -H 'Authorization: Payment method="stripe", challengeId="chal_...", sig="...", spt="spt_..."'</code></pre>
+# seller_details is optional for this test helper. When present, use the
+# networkId decoded from the Stripe challenge to scope the SPT to this seller.
+
+curl -i {{ $base }}/api/v1/scores/match/1 \
+  -H 'Authorization: Payment &lt;base64url {challenge, payload, source}&gt;'</code></pre>
                     </div>
                 </div>
 
@@ -634,13 +687,17 @@ curl -i {{ $base }}/api/v1/stripe/scores/match/1 \
                     <span class="eyebrow">Paid response</span>
                     <h3 class="mt-3 font-display text-lg font-700 text-ink">The API returns the scoreline and a receipt</h3>
                     <pre class="codeblock mt-4 overflow-x-auto rounded-lg p-4"><code>HTTP/1.1 200 OK
-Payment-Receipt: id="rcpt_...", method="stripe",
-  amount="{{ $stripe['match'] }}", currency="{{ $stripe['currency'] }}",
-  ref="pi_3Q...", settledAt="..."
+Payment-Receipt: &lt;base64url-json&gt;
 
+# decoded receipt:
 {
-  "tier": "pay-per-view",
-  "scoreline": { "id": 1, "home_score": 7, "away_score": 1, "teams": null }
+  "status": "success",
+  "method": "stripe",
+  "timestamp": "…",
+  "reference": "pi_3Q…",
+  "challengeId": "LRt7…w7k",
+  "amount": "{{ $stripe['match'] }}",
+  "currency": "{{ $stripe['currency'] }}"
 }</code></pre>
                 </div>
 
@@ -649,24 +706,24 @@ Payment-Receipt: id="rcpt_...", method="stripe",
                     <span class="eyebrow">Decade Pass · same metering, on cards</span>
                     <h3 class="mt-3 font-display text-lg font-700 text-ink">One ${{ $stripe['classics'] }} charge, three decades</h3>
                     <p class="mt-2 max-w-3xl text-sm text-ink-soft">
-                        The <code class="font-mono font-600 text-turf">/api/v1/stripe/scores/classics/{80s|90s|00s}</code> endpoint
+                        The shared <code class="font-mono font-600 text-turf">/api/v1/scores/classics/{80s|90s|00s}</code> endpoint
                         settles a single ${{ $stripe['classics'] }} {{ $stripe['currency'] }} PaymentIntent and issues a 3-credit
                         <code class="font-mono font-600 text-turf">Payment-Session</code> - the same metered session as Tempo, paid by card instead of on-chain.
                     </p>
                     <div class="mt-5 grid gap-5 lg:grid-cols-2">
                         <pre class="codeblock min-w-0 overflow-x-auto rounded-lg p-4"><code># 1 · pay the first decade with an SPT - issues a 3-credit session
-curl -i {{ $base }}/api/v1/stripe/scores/classics/80s \
-  -H 'Authorization: Payment method="stripe", challengeId="chal_...", sig="...", spt="spt_..."'
+curl -i {{ $base }}/api/v1/scores/classics/80s \
+  -H 'Authorization: Payment &lt;base64url … + SPT&gt;'
 
 → Payment-Session: id="sess_...",
-    remaining="2", scope="stripe.classics"</code></pre>
+    remaining="2", scope="classics"</code></pre>
                         <pre class="codeblock min-w-0 overflow-x-auto rounded-lg p-4"><code># 2 · reuse it on the other decades - no charge, credits decrement
-curl {{ $base }}/api/v1/stripe/scores/classics/90s \
+curl {{ $base }}/api/v1/scores/classics/90s \
   -H 'Authorization: Payment session="sess_..."'
 
 → 200 OK · Payment-Session remaining="1"
 
-curl {{ $base }}/api/v1/stripe/scores/classics/00s \
+curl {{ $base }}/api/v1/scores/classics/00s \
   -H 'Authorization: Payment session="sess_..."'
 
 → 200 OK · Payment-Session remaining="0"</code></pre>

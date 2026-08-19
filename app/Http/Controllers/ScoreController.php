@@ -20,7 +20,7 @@ class ScoreController extends Controller
         return response()->json([
             'tier' => 'trial',
             'scoreline' => Scorelines::present(Scorelines::first()),
-            'note' => 'This is the free trial score. Fetch any specific match at /api/v1/{tempo|stripe}/scores/match/{id}.',
+            'note' => 'This is the free trial score. Fetch any specific match at /api/v1/scores/match/{id}, payable by Stripe or Tempo from one 402.',
         ]);
     }
 
@@ -86,9 +86,7 @@ class ScoreController extends Controller
         }
 
         return [
-            'scope' => str_starts_with($request->path(), 'api/v1/stripe/')
-                ? 'stripe.classics'
-                : 'tempo.classics',
+            'scope' => 'classics',
             'grantsPerPurchase' => 3,
             'session' => $session,
             'note' => $session
