@@ -10,18 +10,13 @@ return [
     'brand' => env('APP_NAME', 'PayForGoals'),
     'tagline' => 'Relive football\'s greatest scorelines on demand.',
 
-    // Pricing, mirrored from the mpp:… middleware on routes/api.php.
+    // One route price covers both rails. Tempo pays the same number in pathUSD;
+    // USD pricing keeps the shared route above Stripe's card minimum.
     'pricing' => [
-        // Tempo rail (on-chain pathUSD) — sub-cent, no card minimum.
-        'match' => '0.01',     // pay-per-view, per request
-        'classics' => '0.05',  // Decade Pass, one payment grants 3
-        'currency' => 'pathUSD',
-        // Stripe rail (cards / Shared Payment Tokens) — priced ≥ Stripe's ~$0.50 minimum.
-        'stripe' => [
-            'match' => '1.00',
-            'classics' => '3.00',
-            'currency' => 'USD',
-        ],
+        'match' => '1.00',
+        'classics' => '3.00',
+        'currency' => 'USD',
+        'grants' => 3,
     ],
 
     // Tempo testnet settlement facts, surfaced for the education sections.
@@ -39,6 +34,7 @@ return [
         'package' => 'https://github.com/square1-io/laravel-mpp',
         'source' => 'https://github.com/square1-io/www.payforgoals.com',
         'mpp' => 'https://mpp.dev',
+        'payment_auth' => 'https://paymentauth.org/draft-httpauth-payment-00',
         'tempo_explorer' => 'https://explore.testnet.tempo.xyz',
         'stripe_spt' => 'https://docs.stripe.com/agentic-commerce/concepts/shared-payment-tokens',
     ],
