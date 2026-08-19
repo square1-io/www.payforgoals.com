@@ -264,6 +264,7 @@
                     <div class="mt-3 font-mono text-xs text-ink-faint">GET /api/v1/scores/match/{id}</div>
                     <div class="relative mt-3 w-full min-w-0">
                         <pre id="cmd-t-ppv" class="codeblock overflow-x-auto rounded-lg p-4"><code>npx mppx {{ $base }}/api/v1/scores/match/1 \
+  -H 'Accept-Payment: tempo/charge' \
   --network testnet</code></pre>
                     </div>
                 </div>
@@ -280,6 +281,7 @@
                     <div class="mt-3 font-mono text-xs text-ink-faint">GET /api/v1/scores/classics/{80s|90s|00s}</div>
                     <div class="relative mt-3 w-full min-w-0">
                         <pre id="cmd-t-pass" class="codeblock overflow-x-auto rounded-lg p-4"><code>npx mppx {{ $base }}/api/v1/scores/classics/80s \
+  -H 'Accept-Payment: tempo/charge' \
   --network testnet</code></pre>
                     </div>
                 </div>
@@ -547,6 +549,7 @@ npx mppx account fund --network testnet</code></pre>
                         <h3 class="mt-3 font-display text-lg font-700 text-ink">Hit a paid endpoint</h3>
                         <p class="mt-2 text-sm text-ink-soft">mppx fetches the <span class="scorechip led text-xs">402</span>, signs the transfer, and retries - all in one command.</p>
                         <pre id="t-step2" class="codeblock mt-4 overflow-x-auto rounded-lg p-4"><code>npx mppx {{ $base }}/api/v1/scores/match/1 \
+  -H 'Accept-Payment: tempo/charge' \
   --network testnet --account main</code></pre>
                     </div>
                 </div>
@@ -621,6 +624,7 @@ Payment-Receipt: &lt;base64url-json&gt;
                     <div class="mt-5 grid gap-5 lg:grid-cols-2">
                         <pre class="codeblock min-w-0 overflow-x-auto rounded-lg p-4"><code># 1 · pay once - issues a 3-credit session
 npx mppx {{ $base }}/api/v1/scores/classics/80s \
+  -H 'Accept-Payment: tempo/charge' \
   --network testnet --account main -i
 
 → Payment-Session: id="sess_…EP",
