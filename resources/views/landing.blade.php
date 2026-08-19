@@ -185,6 +185,42 @@
             and retries the same URL. No signup, no checkout page.
         </p>
 
+        {{-- Advisory discovery document for agents; the live 402 remains authoritative. --}}
+        <div class="mt-10 grid min-w-0 gap-6 border-y py-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-center" style="border-color: var(--color-line)">
+            <div>
+                <span class="eyebrow">Machine-readable menu</span>
+                <h3 class="mt-3 font-display text-xl font-700 text-ink">For agents who refuse to browse the website</h3>
+                <p class="mt-2 text-sm leading-relaxed text-ink-soft">
+                    The OpenAPI document lists the paid endpoints, prices and available methods before
+                    an agent makes a request. It is the useful advance scouting report; the actual
+                    <code class="font-mono font-600 text-turf">WWW-Authenticate: Payment</code> challenges
+                    returned by the endpoint remain authoritative.
+                </p>
+                <a href="/openapi.json" class="mt-4 inline-block font-mono text-sm font-600 text-turf-bright underline-offset-4 hover:underline" target="_blank" rel="noreferrer">
+                    /openapi.json
+                </a>
+            </div>
+            <div class="min-w-0">
+                <div class="mb-2 font-mono text-[11px] text-ink-faint">Request, followed by a response excerpt</div>
+                <pre class="codeblock min-w-0 overflow-x-auto rounded-lg p-4"><code>curl {{ $base }}/openapi.json
+
+{
+  "paths": {
+    "/api/v1/scores/match/{id}": {
+      "get": {
+        "x-payment-info": {
+          "offers": [
+            { "method": "stripe", "intent": "charge", "amount": "100", "currency": "usd" },
+            { "method": "tempo", "intent": "charge", "amount": "1000000", "currency": "0x20c0000000000000000000000000000000000000" }
+          ]
+        }
+      }
+    }
+  }
+}</code></pre>
+            </div>
+        </div>
+
         {{-- FREE - rail-agnostic, full width --}}
         <article class="panel mt-12 flex min-w-0 flex-col rounded-xl p-6 md:flex-row md:items-center md:gap-8">
             <div class="md:flex-1">
