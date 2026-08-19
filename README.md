@@ -55,8 +55,10 @@ A request for a scoreline that does not exist should never be charged for. The m
 npx mppx account create
 npx mppx account fund --network testnet
 
-# pay-per-view: mppx handles the 402, pay, retry loop for you
-npx mppx https://your-host/api/v1/scores/match/1 --network testnet --account main
+# pay-per-view: select Tempo, then mppx handles the 402, pay, retry loop for you
+npx mppx https://your-host/api/v1/scores/match/1 \
+  -H 'Accept-Payment: tempo/charge' \
+  --network testnet --account main
 ```
 
 Tempo receipts contain an on-chain transaction hash. The recipient wallet shown by the demo can be inspected on the Tempo testnet explorer:
@@ -69,7 +71,9 @@ Decade Pass, pay once and reuse the session:
 
 ```bash
 # 1. pay once; the response carries a 3-credit Payment-Session header
-npx mppx https://your-host/api/v1/scores/classics/80s --network testnet --account main -i
+npx mppx https://your-host/api/v1/scores/classics/80s \
+  -H 'Accept-Payment: tempo/charge' \
+  --network testnet --account main -i
 #   -> Payment-Session: id="sess_…", remaining="2", scope="classics"
 
 # 2. reuse the session on the sibling decades, no new payment
