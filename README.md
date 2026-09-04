@@ -1,5 +1,7 @@
 # PayForGoals
 
+[![Tests](https://github.com/square1-io/www.payforgoals.com/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/square1-io/www.payforgoals.com/actions/workflows/tests.yml)
+
 > Relive football's greatest scorelines on demand. We return the score, and only the score. Team names are a premium feature, coming soon.
 
 PayForGoals is a small, deployable Laravel app that doubles as a live demo of the [Machine Payments Protocol (MPP)](https://mpp.dev). Its paid API endpoints are gated by the [`square1/laravel-mpp`](https://github.com/square1-io/laravel-mpp) package and offer two payment methods from one endpoint:
@@ -142,6 +144,14 @@ php artisan migrate
 npm run build               # or: npm run dev
 php artisan serve --host=127.0.0.1 --port=8000
 ```
+
+### Tests
+
+```bash
+php artisan test
+```
+
+The suite needs the `bcmath` and `gmp` extensions (`square1/laravel-mpp` uses them for on-chain amounts). GitHub Actions runs the same command on every pull request, on the PHP version `composer.json` requires - see [`.github/workflows/tests.yml`](.github/workflows/tests.yml).
 
 ## Environment variables
 

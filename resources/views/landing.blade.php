@@ -600,11 +600,8 @@ Payment-Receipt: &lt;base64url-json&gt;
 {
   "method": "tempo",
   "status": "success",
-  "timestamp": "2026-06-23T12:51:42.163Z",
-  "reference": "0x3da1…913b",
-  "challengeId": "Kf9c…x2m",
-  "amount": "1000000",
-  "currency": "{{ \Illuminate\Support\Str::limit($tempo['token'], 10, '…') }}"
+  "timestamp": "2026-06-23T12:51:42Z",
+  "reference": "0x3da1…913b"
 }</code></pre>
                         <p class="mt-3 break-words font-mono text-xs leading-relaxed text-ink-faint">
                             <span class="text-ink-soft">reference</span> is the settled transaction hash. The funds - {{ $price['match'] }} pathUSD -
@@ -736,10 +733,7 @@ Payment-Receipt: &lt;base64url-json&gt;
   "status": "success",
   "method": "stripe",
   "timestamp": "…",
-  "reference": "pi_3Q…",
-  "challengeId": "LRt7…w7k",
-  "amount": "{{ $stripe['match'] }}",
-  "currency": "{{ $stripe['currency'] }}"
+  "reference": "pi_3Q…"
 }</code></pre>
                 </div>
 
