@@ -1,0 +1,67 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: PHPUnit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v5
+
+      - name: Resolve the PHP version from composer.json
+        id: php
+        run: |
+          constraint="$(jq -er '.require.php' composer.json)"
+          version="$(printf '%s' "$constraint" | grep -oE '[0-9]+\.[0-9]+' | head -n 1)"
+          if [ -z "$version" ]; then
+            echo "Could not read a PHP version from composer.json (require.php = $constraint)" >&2
+            exit 1
+          fi
+          echo "Testing on PHP $version (composer requires $constraint)"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Set up PHP ${{ steps.php.outputs.version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ steps.php.outputs.version }}
+          # bcmath and gmp are required by square1/laravel-mpp; the rest cover
+          # Laravel and the in-memory SQLite database the tests run against.
+          extensions: bcmath, curl, dom, fileinfo, gmp, mbstring, openssl, pdo_sqlite, sqlite3, tokenizer, xml
+          coverage: none
+          ini-values: error_reporting=E_ALL
+
+      - name: Resolve the Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer downloads
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-php${{ steps.php.outputs.version }}-${{ hashFiles('composer.lock') }}
+          restore-keys: |
+            composer-${{ runner.os }}-php${{ steps.php.outputs.version }}-
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Prepare the environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Run the test suite
+        run: php artisan test
