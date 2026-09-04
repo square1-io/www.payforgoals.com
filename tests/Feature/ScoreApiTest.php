@@ -61,7 +61,7 @@ class ScoreApiTest extends TestCase
 
         $challenges = $this->challengesByMethod($response);
 
-        $this->assertSame(['stripe', 'tempo'], array_keys($challenges));
+        $this->assertSame(['tempo', 'stripe'], array_keys($challenges));
         $this->assertNotSame($challenges['stripe']['id'], $challenges['tempo']['id']);
         $this->assertSame('charge', $challenges['stripe']['intent']);
         $this->assertSame('charge', $challenges['tempo']['intent']);
@@ -104,7 +104,7 @@ class ScoreApiTest extends TestCase
         $this->assertSame(['tempo'], array_keys($this->challengesByMethod($tempoOnly)));
         $this->assertSame(['stripe'], array_keys($this->challengesByMethod($stripeOnly)));
         $this->assertSame(['tempo', 'stripe'], array_keys($this->challengesByMethod($ranked)));
-        $this->assertSame(['stripe', 'tempo'], array_keys($this->challengesByMethod($unsupported)));
+        $this->assertSame(['tempo', 'stripe'], array_keys($this->challengesByMethod($unsupported)));
     }
 
     public function test_missing_match_is_rejected_before_a_challenge_is_minted(): void
@@ -120,7 +120,7 @@ class ScoreApiTest extends TestCase
         $response = $this->getJson('/api/v1/scores/classics/80s')->assertStatus(402);
         $challenges = $this->challengesByMethod($response);
 
-        $this->assertSame(['stripe', 'tempo'], array_keys($challenges));
+        $this->assertSame(['tempo', 'stripe'], array_keys($challenges));
         $this->assertSame('300', $this->decodeParameter($challenges['stripe'], 'request')['amount']);
         $this->assertSame('3000000', $this->decodeParameter($challenges['tempo'], 'request')['amount']);
 
@@ -172,10 +172,10 @@ class ScoreApiTest extends TestCase
         $matchOffers = $document['paths']['/api/v1/scores/match/{id}']['get']['x-payment-info']['offers'];
         $classicsOffers = $document['paths']['/api/v1/scores/classics/{decade}']['get']['x-payment-info']['offers'];
 
-        $this->assertSame(['stripe', 'tempo'], array_column($matchOffers, 'method'));
-        $this->assertSame(['100', '1000000'], array_column($matchOffers, 'amount'));
-        $this->assertSame(['stripe', 'tempo'], array_column($classicsOffers, 'method'));
-        $this->assertSame(['300', '3000000'], array_column($classicsOffers, 'amount'));
+        $this->assertSame(['tempo', 'stripe'], array_column($matchOffers, 'method'));
+        $this->assertSame(['1000000', '100'], array_column($matchOffers, 'amount'));
+        $this->assertSame(['tempo', 'stripe'], array_column($classicsOffers, 'method'));
+        $this->assertSame(['3000000', '300'], array_column($classicsOffers, 'amount'));
     }
 
     /**
@@ -184,9 +184,17 @@ class ScoreApiTest extends TestCase
     private function challengesByMethod(TestResponse $response): array
     {
         $challenges = [];
-        $header = (string) $response->headers->get('WWW-Authenticate');
 
-        foreach (preg_split('/(?:^|,\s*)Payment\s+/', $header, flags: PREG_SPLIT_NO_EMPTY) as $entry) {
+        // A multi-rail 402 puts each Payment challenge on its own header line
+        // (laravel-mpp >= 2.1.0), so collect every line. A plain get() would
+        // return only the first rail. Comma-joined challenges on one line are
+        // still split for good measure.
+        $entries = [];
+        foreach ($response->headers->all('WWW-Authenticate') as $header) {
+            array_push($entries, ...preg_split('/(?:^|,\s*)Payment\s+/', (string) $header, flags: PREG_SPLIT_NO_EMPTY));
+        }
+
+        foreach ($entries as $entry) {
             preg_match_all('/([a-z][a-z0-9_-]*)="((?:[^"\\\\]|\\\\.)*)"/i', $entry, $matches, PREG_SET_ORDER);
 
             $parameters = [];
