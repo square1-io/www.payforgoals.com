@@ -9,7 +9,7 @@
         "php": "^8.4",
         "laravel/framework": "^13.8",
         "laravel/tinker": "^3.0",
-        "square1/laravel-mpp": "2.0.0"
+        "square1/laravel-mpp": "2.1.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

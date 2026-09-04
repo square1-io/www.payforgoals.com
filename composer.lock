@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6c7478fdda1ed18c439a9c811474edfd",
+    "content-hash": "5bf0b78f6a2edd7f3d76f223700350d4",
     "packages": [
         {
             "name": "brick/math",
@@ -3306,16 +3306,16 @@
         },
         {
             "name": "square1/laravel-mpp",
-            "version": "2.0.0",
+            "version": "2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/square1-io/laravel-mpp.git",
-                "reference": "f7a131f903b628178fab2328ec1293c70a1b334c"
+                "reference": "14acef4d47c23596a244fb6c9ccd9e38851f5bb3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/square1-io/laravel-mpp/zipball/f7a131f903b628178fab2328ec1293c70a1b334c",
-                "reference": "f7a131f903b628178fab2328ec1293c70a1b334c",
+                "url": "https://api.github.com/repos/square1-io/laravel-mpp/zipball/14acef4d47c23596a244fb6c9ccd9e38851f5bb3",
+                "reference": "14acef4d47c23596a244fb6c9ccd9e38851f5bb3",
                 "shasum": ""
             },
             "require": {
@@ -3372,9 +3372,9 @@
             ],
             "support": {
                 "issues": "https://github.com/square1-io/laravel-mpp/issues",
-                "source": "https://github.com/square1-io/laravel-mpp/tree/2.0.0"
+                "source": "https://github.com/square1-io/laravel-mpp/tree/2.1.0"
             },
-            "time": "2026-08-19T21:47:09+00:00"
+            "time": "2026-09-04T10:36:22+00:00"
         },
         {
             "name": "stripe/stripe-php",
