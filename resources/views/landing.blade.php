@@ -474,9 +474,11 @@
             <span class="eyebrow">Optional negotiation · Accept-Payment</span>
             <h3 class="mt-3 font-display text-lg font-700 text-ink">Hint which challenges your client prefers</h3>
             <p class="mt-2 max-w-3xl text-sm leading-relaxed text-ink-soft">
-                With no hint, the server offers both methods. A client can ask for one method, or rank
-                several with quality values. The returned <code class="font-mono font-600 text-turf">WWW-Authenticate</code>
-                challenges are always authoritative.
+                With no hint, the server offers both methods, as one
+                <code class="font-mono font-600 text-turf">WWW-Authenticate</code> line each, Tempo first.
+                A client can ask for one method, or rank several with quality values. The returned
+                <code class="font-mono font-600 text-turf">WWW-Authenticate</code> challenges are always
+                authoritative.
             </p>
             <div data-tabs class="mt-5">
                 <div role="tablist" aria-label="Accept-Payment examples" class="flex max-w-full gap-1 overflow-x-auto rounded-lg border bg-surface p-1 font-display text-sm font-700" style="border-color: var(--color-line)">
@@ -496,8 +498,8 @@
                     <pre class="codeblock min-w-0 overflow-x-auto rounded-lg p-4"><code>HTTP/1.1 402 Payment Required
 Content-Type: application/problem+json
 Cache-Control: no-store, private
-<span class="text-turf-bright">WWW-Authenticate: Payment … method="stripe" …,
-  Payment … method="tempo" …</span></code></pre>
+<span class="text-turf-bright">WWW-Authenticate: Payment … method="tempo" …
+WWW-Authenticate: Payment … method="stripe" …</span></code></pre>
                 </div>
 
                 <div role="tabpanel" id="panel-negotiate-tempo" aria-labelledby="tab-negotiate-tempo" class="mt-4 grid gap-4 lg:grid-cols-2" hidden>
@@ -566,9 +568,9 @@ npx mppx account fund --network testnet</code></pre>
 Content-Type: application/problem+json
 Cache-Control: no-store, private
 WWW-Authenticate: Payment id="LRt7…w7k",
-  realm="{{ parse_url($base, PHP_URL_HOST) ?: 'localhost' }}", method="stripe",
-  intent="charge", request="&lt;base64url&gt;", …,
-  Payment id="Kf9c…x2m", realm="…", method="tempo",
+  realm="{{ parse_url($base, PHP_URL_HOST) ?: 'localhost' }}", method="tempo",
+  intent="charge", request="&lt;base64url&gt;", …
+WWW-Authenticate: Payment id="Kf9c…x2m", realm="…", method="stripe",
   intent="charge", request="&lt;base64url&gt;", …
 
 {
