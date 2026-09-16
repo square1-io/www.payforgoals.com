@@ -168,6 +168,22 @@ return [
         'enabled' => (bool) env('MPP_DISCOVERY', true),
         'title' => env('MPP_DISCOVERY_TITLE'),
         'version' => env('MPP_DISCOVERY_VERSION', '1.0.0'),
+        'summary' => 'A pay-per-request API for famous football scores.',
+        'description' => 'PayForGoals is a live example of the Machine Payments Protocol (MPP). PayForGoals returns football scores without team names. You can pay with Tempo or Stripe.',
+        'contact' => [
+            'name' => 'Square1',
+            'url' => 'https://www.square1.io',
+        ],
+        'license' => [
+            'name' => 'MIT',
+            'identifier' => 'MIT',
+        ],
+        'categories' => ['data', 'developer-tools'],
+        'docs' => [
+            'homepage' => '/',
+            'api_reference' => '/#api',
+        ],
+        'include' => ['scores.trial'],
     ],
 
     /*

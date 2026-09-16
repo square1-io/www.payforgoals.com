@@ -191,10 +191,10 @@
                 <span class="eyebrow">Machine-readable menu</span>
                 <h3 class="mt-3 font-display text-xl font-700 text-ink">For agents who refuse to browse the website</h3>
                 <p class="mt-2 text-sm leading-relaxed text-ink-soft">
-                    The OpenAPI document lists the paid endpoints, prices and available methods before
-                    an agent makes a request. It is the useful advance scouting report; the actual
-                    <code class="font-mono font-600 text-turf">WWW-Authenticate: Payment</code> challenges
-                    returned by the endpoint remain authoritative.
+                    The OpenAPI document describes PayForGoals. It lists the free and paid endpoints,
+                    parameters, responses, prices and payment methods. An agent can read the document before
+                    the agent sends a request. The endpoint returns the current payment instructions in its
+                    <code class="font-mono font-600 text-turf">WWW-Authenticate: Payment</code> challenge.
                 </p>
                 <a href="/openapi.json" class="mt-4 inline-block font-mono text-sm font-600 text-turf-bright underline-offset-4 hover:underline" target="_blank" rel="noreferrer">
                     /openapi.json
@@ -205,15 +205,21 @@
                 <pre class="codeblock min-w-0 overflow-x-auto rounded-lg p-4"><code>curl {{ $base }}/openapi.json
 
 {
+  "info": { "title": "PayForGoals", "version": "1.0.0" },
+  "x-service-info": { "categories": ["data", "developer-tools"] },
   "paths": {
     "/api/v1/scores/match/{id}": {
       "get": {
+        "operationId": "scores.match",
+        "summary": "Fetch a famous scoreline",
         "x-payment-info": {
           "offers": [
-            { "method": "stripe", "intent": "charge", "amount": "100", "currency": "usd" },
-            { "method": "tempo", "intent": "charge", "amount": "1000000", "currency": "0x20c0000000000000000000000000000000000000" }
+            { "method": "tempo", "intent": "charge", "amount": "1000000" },
+            { "method": "stripe", "intent": "charge", "amount": "100" }
           ]
-        }
+        },
+        "parameters": [{ "name": "id", "in": "path", "schema": { "type": "integer" } }],
+        "responses": { "200": { "content": { "application/json": { "schema": { "type": "object" } } } } }
       }
     }
   }
