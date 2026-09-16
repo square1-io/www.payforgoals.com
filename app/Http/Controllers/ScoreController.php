@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Data\ClassicsResult;
+use App\Data\MatchResult;
+use App\Data\PassInfo;
 use App\Data\Scorelines;
+use App\Data\TrialResult;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Square1\Mpp\Attributes\DiscoveryInfo;
 
 /**
  * The PayForGoals API. Every endpoint returns a famous scoreline and nothing that
@@ -14,17 +19,31 @@ use Illuminate\Http\Request;
  */
 class ScoreController extends Controller
 {
-    /** Free trial. The first scoreline, so you can inspect the API shape without paying. */
+    #[DiscoveryInfo(
+        summary: 'Try one famous scoreline for free',
+        description: 'This operation returns one sample. The sample has the same format as the paid match endpoint.',
+        tags: ['scorelines'],
+        response: TrialResult::class,
+    )]
     public function trial(): JsonResponse
     {
-        return response()->json([
-            'tier' => 'trial',
-            'scoreline' => Scorelines::present(Scorelines::first()),
-            'note' => 'This is the free trial score. Fetch any specific match at /api/v1/scores/match/{id}, payable by Stripe or Tempo from one 402.',
-        ]);
+        return response()->json(new TrialResult(
+            tier: 'trial',
+            scoreline: Scorelines::present(Scorelines::first()),
+            note: 'This is the free trial score. Fetch any specific match at /api/v1/scores/match/{id}, payable by Stripe or Tempo from one 402.',
+        ));
     }
 
-    /** Pay-per-view. A specific famous match's scoreline. */
+    #[DiscoveryInfo(
+        summary: 'Fetch a famous scoreline',
+        description: 'This operation returns one scoreline for a match ID. The response does not include team names.',
+        priceNote: 'The price is for one scoreline. You can pay with Tempo or Stripe.',
+        tags: ['scorelines'],
+        response: [
+            '200' => MatchResult::class,
+            '404' => ['description' => 'No scoreline has this match ID.'],
+        ],
+    )]
     public function match(int $id): JsonResponse
     {
         $entry = Scorelines::find($id);
@@ -36,13 +55,22 @@ class ScoreController extends Controller
             ], 404);
         }
 
-        return response()->json([
-            'tier' => 'pay-per-view',
-            'scoreline' => Scorelines::present($entry),
-        ]);
+        return response()->json(new MatchResult(
+            tier: 'pay-per-view',
+            scoreline: Scorelines::present($entry),
+        ));
     }
 
-    /** Decade Pass (metered bundle). All three decades on one payment. */
+    #[DiscoveryInfo(
+        summary: 'Fetch classic scorelines by decade',
+        description: 'This operation returns the scorelines for one decade. The response does not include team names.',
+        priceNote: 'One payment gives access to all three decades.',
+        tags: ['scorelines'],
+        response: [
+            '200' => ClassicsResult::class,
+            '404' => ['description' => 'PayForGoals does not support this decade.'],
+        ],
+    )]
     public function classics(Request $request, string $decade): JsonResponse
     {
         $valid = ['80s', '90s', '00s'];
@@ -59,13 +87,13 @@ class ScoreController extends Controller
             Scorelines::forDecade($decade),
         );
 
-        return response()->json([
-            'tier' => 'decade-pass',
-            'decade' => $decade,
-            'count' => count($scorelines),
-            'scorelines' => $scorelines,
-            'pass' => $this->passInfo($request),
-        ]);
+        return response()->json(new ClassicsResult(
+            tier: 'decade-pass',
+            decade: $decade,
+            count: count($scorelines),
+            scorelines: $scorelines,
+            pass: $this->passInfo($request),
+        ));
     }
 
     /**
@@ -73,10 +101,8 @@ class ScoreController extends Controller
      * how many decades remain on the pass. The middleware sets a `Payment-Session`
      * response header with the authoritative remaining count; we mirror what we
      * can read from the inbound credential here for visibility.
-     *
-     * @return array<string, mixed>
      */
-    private function passInfo(Request $request): array
+    private function passInfo(Request $request): PassInfo
     {
         $auth = (string) $request->header('Authorization', '');
 
@@ -85,13 +111,13 @@ class ScoreController extends Controller
             $session = $m[1];
         }
 
-        return [
-            'scope' => 'classics',
-            'grantsPerPurchase' => 3,
-            'session' => $session,
-            'note' => $session
+        return new PassInfo(
+            scope: 'classics',
+            grantsPerPurchase: 3,
+            session: $session,
+            note: $session
                 ? 'Reusing your Decade Pass. See the Payment-Session response header for remaining credits.'
                 : 'This decade was unlocked by your purchase. The Payment-Session header carries your remaining credits; reuse it on the other decades with Authorization: Payment session="...".',
-        ];
+        );
     }
 }

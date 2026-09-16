@@ -17,6 +17,7 @@ Built by [Square1](https://www.square1.io).
 
 - A marketing and education landing page (single Blade view, responsive, Tailwind v4): hero, API reference, premium teaser, an "is this for real?" turn, a tabbed getting-started section (Tempo and Stripe, both live), and a footer.
 - A real, payment-gated JSON API (`routes/api.php`): one paid resource, payable through Stripe or Tempo from the same `402`.
+- A discovery document at `/openapi.json`. It describes the service, operations, prices, parameters, responses, and protocol headers.
 - The famous scorelines themselves (`app/Data/Scorelines.php`): scores only, no team names.
 
 ## The API
@@ -30,6 +31,8 @@ All endpoints return scorelines without team names, with `home_score` and `away_
 | `GET /api/v1/scores/classics/{decade}` | `$3.00` USD | Decade Pass: one payment grants three accesses. Either method. |
 
 `decade` is one of `80s|90s|00s`. Decade Pass is metered: one payment issues a reusable `Payment-Session` good for 3 accesses across the decades.
+
+The classes in `app/Data` define the API responses. The package uses these classes to create the response schemas in `/openapi.json`. The package uses route names for operation IDs. The package reads operation details from controller attributes and prices from the payment middleware. A PHPDoc tag gives the item type for each array.
 
 Paid routes are gated by the package middleware in `routes/api.php`. The `methods=` argument controls what one route offers:
 
@@ -130,7 +133,7 @@ curl -si <APP_URL>/api/v1/scores/match/1 \
 
 Requires PHP 8.4+, Composer, and Node.
 
-The MPP package (`square1/laravel-mpp`, `2.0.0`) is installed from Packagist and declared in `composer.json`:
+Composer installs version 2.3 or a newer 2.x version of `square1/laravel-mpp` from Packagist.
 
 ```bash
 composer install
@@ -181,7 +184,7 @@ The Tempo rail needs no server key: the client signs the pathUSD transfer and pa
 
 Standard Laravel with Vite and Tailwind. No exotic dependencies.
 
-1. Connect the repo. Laravel Cloud runs `composer install` and `npm run build`. The MPP package resolves from Packagist, so no deploy keys or repository config are needed.
+1. Connect the repo. Laravel Cloud runs `composer install` and `npm run build`. Composer installs the MPP package from Packagist.
 2. Set env vars (above). At minimum: `APP_KEY`, `APP_URL`, `MPP_CHALLENGE_SECRET`, and the rail config for whichever rails you're enabling (`TEMPO_RECIPIENT` for Tempo, `STRIPE_SECRET_KEY` for Stripe settlement).
 3. Pick a session store. `MPP_SESSION_DRIVER=cache` works with any cache backend; for oversell-proof metering under real concurrency, point it at Redis.
 4. Run migrations on deploy (`php artisan migrate --force`).

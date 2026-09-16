@@ -152,20 +152,19 @@ class Scorelines
      * coming-soon premium feature, not a deliberate hold-back).
      *
      * @param  array<string, mixed>  $entry
-     * @return array<string, mixed>
      */
-    public static function present(array $entry): array
+    public static function present(array $entry): Scoreline
     {
         [$home, $away] = array_map('intval', explode('-', $entry['score']));
 
-        return [
-            'id' => $entry['id'],
-            'home_score' => $home,
-            'away_score' => $away,
-            'year' => $entry['year'],
-            'stage' => $entry['stage'],
-            'decade' => $entry['decade'],
-            'teams' => null,
-        ];
+        return new Scoreline(
+            id: $entry['id'],
+            home_score: $home,
+            away_score: $away,
+            year: $entry['year'],
+            stage: $entry['stage'],
+            decade: $entry['decade'],
+            teams: null,
+        );
     }
 }

@@ -165,17 +165,67 @@ class ScoreApiTest extends TestCase
             ->assertStatus(402);
     }
 
-    public function test_discovery_advertises_both_rails_for_each_paid_endpoint(): void
+    public function test_discovery_describes_the_paid_operations_from_routes_and_dtos(): void
     {
         $document = $this->getJson('/openapi.json')->assertOk()->json();
 
-        $matchOffers = $document['paths']['/api/v1/scores/match/{id}']['get']['x-payment-info']['offers'];
-        $classicsOffers = $document['paths']['/api/v1/scores/classics/{decade}']['get']['x-payment-info']['offers'];
+        $match = $document['paths']['/api/v1/scores/match/{id}']['get'];
+        $classics = $document['paths']['/api/v1/scores/classics/{decade}']['get'];
+        $matchOffers = $match['x-payment-info']['offers'];
+        $classicsOffers = $classics['x-payment-info']['offers'];
 
         $this->assertSame(['tempo', 'stripe'], array_column($matchOffers, 'method'));
         $this->assertSame(['1000000', '100'], array_column($matchOffers, 'amount'));
         $this->assertSame(['tempo', 'stripe'], array_column($classicsOffers, 'method'));
         $this->assertSame(['3000000', '300'], array_column($classicsOffers, 'amount'));
+        $this->assertSame('The price is for one scoreline. You can pay with Tempo or Stripe.', $matchOffers[0]['description']);
+
+        $this->assertSame('scores.match', $match['operationId']);
+        $this->assertSame('Fetch a famous scoreline', $match['summary']);
+        $this->assertSame('integer', $match['parameters'][0]['schema']['type']);
+        $this->assertSame('^(?:80s|90s|00s)$', $classics['parameters'][0]['schema']['pattern']);
+
+        $matchSchema = $match['responses']['200']['content']['application/json']['schema'];
+        $classicsSchema = $classics['responses']['200']['content']['application/json']['schema'];
+        $scorelineSchema = $matchSchema['properties']['scoreline'];
+
+        $this->assertSame('integer', $scorelineSchema['properties']['home_score']['type']);
+        $this->assertContains('teams', $scorelineSchema['required']);
+        $this->assertSame(['array', 'null'], $scorelineSchema['properties']['teams']['type']);
+        $this->assertSame('string', $scorelineSchema['properties']['teams']['items']['type']);
+        $this->assertSame($scorelineSchema, $classicsSchema['properties']['scorelines']['items']);
+        $this->assertContains('session', $classicsSchema['properties']['pass']['required']);
+        $this->assertSame(['string', 'null'], $classicsSchema['properties']['pass']['properties']['session']['type']);
+
+        $this->assertSame('string', $match['responses']['200']['headers']['Payment-Receipt']['schema']['type']);
+        $this->assertSame('string', $match['responses']['402']['headers']['WWW-Authenticate']['schema']['type']);
+        $this->assertSame('string', $match['responses']['409']['headers']['Retry-After']['schema']['type']);
+    }
+
+    public function test_discovery_publishes_the_live_service_and_free_trial(): void
+    {
+        config()->set('app.url', 'https://www.payforgoals.com');
+
+        $response = $this->getJson('/openapi.json')
+            ->assertOk()
+            ->assertHeader('Cache-Control', 'max-age=300, public')
+            ->assertHeader('Access-Control-Allow-Origin', '*');
+
+        $document = $response->json();
+        $trial = $document['paths']['/api/v1/scores/trial']['get'];
+
+        $this->assertSame('PayForGoals', $document['info']['title']);
+        $this->assertSame('A pay-per-request API for famous football scores.', $document['info']['summary']);
+        $this->assertSame(['name' => 'MIT', 'identifier' => 'MIT'], $document['info']['license']);
+        $this->assertSame([['url' => 'https://www.payforgoals.com']], $document['servers']);
+        $this->assertSame(['data', 'developer-tools'], $document['x-service-info']['categories']);
+        $this->assertSame('https://www.payforgoals.com/#api', $document['x-service-info']['docs']['apiReference']);
+
+        $this->assertSame('scores.trial', $trial['operationId']);
+        $this->assertSame('Try one famous scoreline for free', $trial['summary']);
+        $this->assertArrayNotHasKey('x-payment-info', $trial);
+        $this->assertArrayNotHasKey('402', $trial['responses']);
+        $this->assertSame('integer', $trial['responses']['200']['content']['application/json']['schema']['properties']['scoreline']['properties']['id']['type']);
     }
 
     /**
