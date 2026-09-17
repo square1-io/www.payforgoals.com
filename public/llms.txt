@@ -1,0 +1,12 @@
+# PayForGoals
+
+> PayForGoals is a pay-per-request API for famous football scores. Responses do not include team names.
+
+## API
+
+- [OpenAPI discovery](https://www.payforgoals.com/openapi.json): Read the current endpoints, prices, payment methods, parameters, and response schemas.
+- `GET /api/v1/scores/trial`: Get one scoreline for free.
+- `GET /api/v1/scores/match/{id}`: Buy one scoreline. Use match ID `1` for a valid example.
+- `GET /api/v1/scores/classics/{decade}`: Buy scorelines for one decade. Valid values are `80s`, `90s`, and `00s`.
+
+Paid endpoints use the Machine Payments Protocol (MPP) over Tempo or Stripe. The `402` response contains the current payment instructions.

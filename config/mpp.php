@@ -182,6 +182,7 @@ return [
         'docs' => [
             'homepage' => '/',
             'api_reference' => '/#api',
+            'llms' => '/llms.txt',
         ],
         'include' => ['scores.trial'],
     ],
