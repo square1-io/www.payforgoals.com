@@ -39,6 +39,9 @@ class ScoreController extends Controller
         description: 'This operation returns one scoreline for a match ID. The response does not include team names.',
         priceNote: 'The price is for one scoreline. You can pay with Tempo or Stripe.',
         tags: ['scorelines'],
+        parameters: [
+            'id' => ['description' => 'The match ID.', 'example' => 1],
+        ],
         response: [
             '200' => MatchResult::class,
             '404' => ['description' => 'No scoreline has this match ID.'],
@@ -66,6 +69,9 @@ class ScoreController extends Controller
         description: 'This operation returns the scorelines for one decade. The response does not include team names.',
         priceNote: 'One payment gives access to all three decades.',
         tags: ['scorelines'],
+        parameters: [
+            'decade' => ['description' => 'The decade to return.', 'example' => '80s'],
+        ],
         response: [
             '200' => ClassicsResult::class,
             '404' => ['description' => 'PayForGoals does not support this decade.'],

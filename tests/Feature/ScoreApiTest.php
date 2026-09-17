@@ -183,7 +183,9 @@ class ScoreApiTest extends TestCase
         $this->assertSame('scores.match', $match['operationId']);
         $this->assertSame('Fetch a famous scoreline', $match['summary']);
         $this->assertSame('integer', $match['parameters'][0]['schema']['type']);
+        $this->assertSame(1, $match['parameters'][0]['example']);
         $this->assertSame('^(?:80s|90s|00s)$', $classics['parameters'][0]['schema']['pattern']);
+        $this->assertSame('80s', $classics['parameters'][0]['example']);
 
         $matchSchema = $match['responses']['200']['content']['application/json']['schema'];
         $classicsSchema = $classics['responses']['200']['content']['application/json']['schema'];
@@ -220,6 +222,9 @@ class ScoreApiTest extends TestCase
         $this->assertSame([['url' => 'https://www.payforgoals.com']], $document['servers']);
         $this->assertSame(['data', 'developer-tools'], $document['x-service-info']['categories']);
         $this->assertSame('https://www.payforgoals.com/#api', $document['x-service-info']['docs']['apiReference']);
+        $this->assertSame('https://www.payforgoals.com/llms.txt', $document['x-service-info']['docs']['llms']);
+        $this->assertFileExists(public_path('llms.txt'));
+        $this->assertNotSame('', trim((string) file_get_contents(public_path('llms.txt'))));
 
         $this->assertSame('scores.trial', $trial['operationId']);
         $this->assertSame('Try one famous scoreline for free', $trial['summary']);
